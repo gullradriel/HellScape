@@ -64,7 +64,7 @@ else
 endif
 
 
-SRC=n_common.c n_log.c n_str.c n_list.c n_3d.c n_time.c n_particles.c n_anim.c cJSON.c states_management.c level.c KheldaII.c
+SRC=n_common.c n_log.c n_str.c n_list.c n_3d.c n_time.c n_particles.c n_anim.c cJSON.c states_management.c level.c HellScape.c
 OBJ=$(SRC:%.c=%.o)
 .c.o:
 	$(COMPILE.c) $<
@@ -72,11 +72,11 @@ OBJ=$(SRC:%.c=%.o)
 %.o:%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-KheldaII$(EXT): $(OBJ)
+HellScape$(EXT): $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(CLIBS)
 
-all: KheldaII$(EXT)
+all: HellScape$(EXT)
 
 clean:
 	$(RM) *.o
-	$(RM) KheldaII$(EXT)
+	$(RM) HellScape$(EXT)

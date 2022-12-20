@@ -1,6 +1,6 @@
-/**\file KheldaII.c
+/**\file HellScape.c
  *
- *  KheldaII Main File
+ *  HellScape Main File
  *
  *\author Castagnier Mickaël
  *
@@ -200,7 +200,7 @@ int main( int argc, char *argv[] )
 	{
 		n_abort("Unable to create display\n");
 	}
-	al_set_window_title( display, "KheldaII" );
+	al_set_window_title( display, "HellScape" );
 
 	al_set_new_bitmap_flags( ALLEGRO_VIDEO_BITMAP );
 
@@ -1397,9 +1397,9 @@ int main( int argc, char *argv[] )
 		{
 			DONE = 2 ;
 			N_STR *str = NULL;
-			nstrprintf( str, "CONGRATULATION ! You saved princess Khelda, you're now the owner of a precious Khelda Kiss !!\nYou're going to be teleported to the main map, you can enjoy and replay the world like you want" );
+			nstrprintf( str, "CONGRATULATION ! You saved princess HellScape, you're now the owner of a precious HellScape Kiss !!\nYou're going to be teleported to the main map, you can enjoy and replay the world like you want" );
 			al_show_native_message_box(  al_get_current_display(),
-					"KheldaII",
+					"HellScape",
 					"Game Finished", _nstr( str ), NULL, 0  );
 			/* Set the locale to the POSIX C environment */
 			setlocale (LC_ALL, "POSIX");
@@ -1412,7 +1412,7 @@ int main( int argc, char *argv[] )
 			N_STR *str = NULL;
 			nstrprintf( str, "You nearly lost your life and were saved before the hit could kill you. You may have lost things." );
 			al_show_native_message_box(  al_get_current_display(),
-					"KheldaII",
+					"HellScape",
 					"Respawn", _nstr( str ), NULL, 0  );
 			/* Set the locale to the POSIX C environment */
 			setlocale (LC_ALL, "POSIX");

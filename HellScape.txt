@@ -2,7 +2,7 @@
 
 KrampusHack 2021
 
-KheldaII
+HellScape
 
 =============================================
 
@@ -28,10 +28,10 @@ How I achieved the rules:
 
 How to play:
 
-* You are Kwink. You have to save princess Khelda which is kept prisonner by an Ogre
+* You are Kwink. You have to save princess HellScape which is kept prisonner by an Ogre
 * You directly start on the main map. Move around and kill some simple monsters to gain a bit of XP/Life before trying yourself at the dungeons. 
 * Each dungeons is guarded by a lot of mobs. Killing them is up to you. Leveling up before being traped in a dungeon is recommended
-* Find all the 3 key fragments before going onto the last dungeon. Deliver princess Khelda by defeating the last mob
+* Find all the 3 key fragments before going onto the last dungeon. Deliver princess HellScape by defeating the last mob
 
 Keys:
 
@@ -45,7 +45,7 @@ Keys:
 Items to be collected:
 
 * shield (passive, always equiped once found)
-* sword of Khelda
+* sword of HellScape
 * magic ice wand
 * infinite arrow bow
 * health potion
@@ -63,20 +63,20 @@ Tips:
 
 Options: 
 
-* configurable log level, example: ./KheldaII.exe -V DEBUG 
+* configurable log level, example: ./HellScape.exe -V DEBUG 
 * cheat: editable player_state.json after first execution
 
 ==============================================
 
 How to build: need gcc on linux and gcc + msys / cygwin on windows
 
-mkdir -p KheldaII
+mkdir -p HellScape
 
-mkdir -p KheldaII/LIB
+mkdir -p HellScape/LIB
 
-mkdir -p KheldaII/Src/
+mkdir -p HellScape/Src/
 
-cd KheldaII/LIB
+cd HellScape/LIB
 
 git clone https://framagit.org/GullRaDriel/nilorea-library.git .
 

@@ -21,6 +21,9 @@ typedef struct N_EULER_SIMULATION
 
     double *m ;
     double *new_m ;
+
+    double gravity[ 3 ];
+
 } N_EULER_ARRAY ;
 
 
