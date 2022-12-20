@@ -1,0 +1,91 @@
+=============================================
+
+KrampusHack 2021
+
+KheldaII
+
+=============================================
+
+Task: For amarillion
+
+amarillion Sunday, December 12, 2021 at 5:59 PM
+
+Ok, here is my wishlist.
+
+Dear Santa, I want...
+
+* A science fiction story
+* I'm fond of the Zelda series, so a game that is inspired by Zelda, or has some references or cameo's related to Zelda (I'm especially fond of Zelda II - the adventure of link, because that's the first one I played. At the moment, I'm playing skyward sword HD)
+* Warm socks
+
+=============================================
+
+How I achieved the rules:
+
+* I made a Zelda II alike world with a big map on top view and some dungeons in side view. Permanent world, only the monsters are reset betweens dungeons / starts.
+
+=============================================
+
+How to play:
+
+* You are Kwink. You have to save princess Khelda which is kept prisonner by an Ogre
+* You directly start on the main map. Move around and kill some simple monsters to gain a bit of XP/Life before trying yourself at the dungeons. 
+* Each dungeons is guarded by a lot of mobs. Killing them is up to you. Leveling up before being traped in a dungeon is recommended
+* Find all the 3 key fragments before going onto the last dungeon. Deliver princess Khelda by defeating the last mob
+
+Keys:
+
+* Esc: quit
+* Arrow keys: move, go up/down or jump/crouch
+* CTRL/LeftMouseButton: attack
+* F1 -> F4t: change weapon (Wood stick, sword, magic bow, magic wand)
+* Key PAD PLUS: shield potion
+* Key PAD ENTER: health potion
+
+Items to be collected:
+
+* shield (passive, always equiped once found)
+* sword of Khelda
+* magic ice wand
+* infinite arrow bow
+* health potion
+* shield potion
+
+Obtain: the kiss of the princess one the Ogre is dead !
+
+Tips:
+
+* Leveling up a bit on easy monsters before trying yourself to a dungeon
+* Wandering around and use the map find the sword, the magic wand, the arrow, the shield
+* Loot a bit of potions before entering the last dungeon
+
+==============================================
+
+Options: 
+
+* configurable log level, example: ./KheldaII.exe -V DEBUG 
+* cheat: editable player_state.json after first execution
+
+==============================================
+
+How to build: need gcc on linux and gcc + msys / cygwin on windows
+
+mkdir -p KheldaII
+
+mkdir -p KheldaII/LIB
+
+mkdir -p KheldaII/Src/
+
+cd KheldaII/LIB
+
+git clone https://framagit.org/GullRaDriel/nilorea-library.git .
+
+cd ../Src/
+
+git clone https://framagit.org/GullRaDriel/krampushack2021-kheldaii.git
+
+cd https://framagit.org/GullRaDriel/krampushack2021-kheldaii.git
+
+make
+
+
