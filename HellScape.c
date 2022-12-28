@@ -9,15 +9,15 @@
  *\date 30/12/2021
  */
 
-
+#include <allegro5/allegro_native_dialog.h>
+#include <allegro5/allegro_ttf.h>
+#include <locale.h>
 #include "nilorea/n_common.h"
 #include "nilorea/n_particles.h"
 #include "nilorea/n_anim.h"
-#include <allegro5/allegro_native_dialog.h>
-#include <allegro5/allegro_ttf.h>
 #include "level.h"
 #include "states_management.h"
-#include "locale.h"
+#include "n_fluids.h"
 
 ALLEGRO_DISPLAY *display  = NULL ;
 

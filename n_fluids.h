@@ -1,10 +1,10 @@
-typedef struct N_EULER_SIMULATION
+typedef struct N_FLUID
 {
     size_t numX ;
     size_t numY ;
     size_t numZ ;
     size_t numCells ;
-    size_t nulIters ;
+    size_t numIters ;
     
     double h ;
     double density ;
@@ -13,6 +13,7 @@ typedef struct N_EULER_SIMULATION
     double sim_height ;
     double sim_width ;
     double c_scale ;
+    double overRelaxation ;
 
     double *u ;
     double *newU ;
@@ -26,6 +27,27 @@ typedef struct N_EULER_SIMULATION
     double *m ;
     double *newM ;
 
-} N_EULER_ARRAY ;
+} N_FLUID ;
 
 
+int destroy_n_fluid( N_FLUID **fluid );
+N_FLUID *new_n_fluid( double density , size_t sx , size_t sy , double h );
+
+int n_fluid_integrate( N_FLUID *fluid );
+int n_fluid_solveIncompressibility( N_FLUID *fluid );
+int n_fluid_extrapolate( N_FLUID *fluid );
+
+double n_fluid_sampleField( N_FLUID *fluid , size_t x , size_t y , uint32_t field );
+double n_fluid_avgU( N_FLUID *fluid , size_t i , size_t j );
+double n_fluid_avgV( N_FLUID *fluid , size_t i , size_t j );
+
+int n_fluid_advectVel( N_FLUID *fluid );
+int n_fluid_advectSmoke( N_FLUID *fluid );
+
+int n_fluid_simulate( N_FLUID *fluid );
+
+int n_fluid_set_params( N_FLUID *fluid , double gravity , double dt , size_t numIters , bool overRelaxation );
+
+int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r , bool reset );
+
+int n_fluid_apply_obstacle_list( N_FLUID *fluid );
