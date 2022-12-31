@@ -352,8 +352,8 @@ int main( int argc, char *argv[] )
         DONE = 0 ;
 
         /* set fluid */
-        double fluid_factor = 6.0 ;
-        fluid_sim = new_n_fluid( 10000.0 , 0.0 , 16 , 0.5 , 1.9 , WIDTH / fluid_factor , HEIGHT / fluid_factor );
+        double fluid_factor = 8.0 ;
+        fluid_sim = new_n_fluid( 10000.0 , 0.0 , 40 , 0.5 , 1.9 , WIDTH / fluid_factor , HEIGHT / fluid_factor );
 
         size_t n = fluid_sim -> numY;
         double inVel = 2.0;
