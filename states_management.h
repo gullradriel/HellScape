@@ -19,11 +19,10 @@
 extern "C" {
 #endif
 
-#include "level.h"
 #include "cJSON.h"
+#include "n_fluids.h"
 
-	int load_player_state( PLAYER *player , char *state_filename );
-	int save_player_state( PLAYER *player , char *state_file );
+    int load_fluid_state( N_FLUID *fluid , char *state_filename );
 
 #ifdef __cplusplus
 }

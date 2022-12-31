@@ -3,18 +3,20 @@ CC=gcc
 EXT=
 CLIBS=
 
-OPT=-W -Wall -D_XOPEN_SOURCE=600 -D_XOPEN_SOURCE_EXTENTED -std=gnu99 -g
+OPT=-W -Wall -D_XOPEN_SOURCE=600 -D_XOPEN_SOURCE_EXTENTED -std=gnu99 -O3
+#OPT=-W -Wall -D_XOPEN_SOURCE=600 -D_XOPEN_SOURCE_EXTENTED -std=gnu99 -g
 #OPT+=-O0
-OPT+=-Og
-#OPT+=-O3
+#OPT+=-Og
 
 
 VPATH=../../LIB/src/
 INCLUDE=../../LIB/include
-PROGNAME=test_allegro
 
 #CLIBS=`pkg-config --cflags --libs allegro-5 allegro_acodec-5 allegro_audio-5 allegro_color-5 allegro_dialog-5 allegro_font-5 allegro_image-5 allegro_main-5 allegro_memfile-5 allegro_physfs-5 allegro_primitives-5 allegro_ttf-5`
-ALLEGRO_LIBS=-lallegro_acodec -lallegro_audio -lallegro_color -lallegro_dialog -lallegro_image -lallegro_main -lallegro_memfile -lallegro_physfs -lallegro_primitives -lallegro_ttf -lallegro_font -lallegro
+
+#ALLEGRO_LIBS=-lallegro_acodec -lallegro_audio -lallegro_color -lallegro_dialog -lallegro_image -lallegro_main -lallegro_memfile -lallegro_physfs -lallegro_primitives -lallegro_ttf -lallegro_font -lallegro
+
+ALLEGRO_LIBS=-lallegro_acodec -lallegro_audio -lallegro_color -lallegro_image -lallegro_main -lallegro_primitives -lallegro_ttf -lallegro_font -lallegro
 LIBNILOREA=-lnilorea64
 CFLAGS+= -DALLEGRO_UNSTABLE
 
@@ -64,7 +66,7 @@ else
 endif
 
 
-SRC=n_common.c n_log.c n_str.c n_list.c n_3d.c n_time.c n_particles.c n_anim.c cJSON.c states_management.c level.c n_fluids.c HellScape.c
+SRC=n_common.c n_log.c n_str.c n_list.c cJSON.c states_management.c n_fluids.c HellScape.c
 OBJ=$(SRC:%.c=%.o)
 .c.o:
 	$(COMPILE.c) $<

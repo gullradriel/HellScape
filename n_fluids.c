@@ -65,6 +65,10 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     Malloc( fluid -> m    , double , fluid -> numCells );
     Malloc( fluid -> newM , double , fluid -> numCells );
 
+    fluid -> showSmoke = 1 ;
+    fluid -> showPressure = 0 ;
+    fluid -> showPaint = 0 ;
+
     double d_val = 1.0 ;
     n_memset( fluid -> m , &d_val , sizeof( d_val ) , fluid -> numCells );
 
@@ -205,9 +209,12 @@ double n_fluid_avgV( N_FLUID *fluid , size_t i , size_t j )
 int n_fluid_advectVel( N_FLUID *fluid )
 {
     __n_assert( fluid , return FALSE );
+
+    size_t n = fluid ->numY;
+
     memcpy( fluid -> newU , fluid -> u , fluid -> numCells * sizeof( double ) );
     memcpy( fluid -> newV , fluid -> v , fluid -> numCells * sizeof( double ) );
-    size_t n = fluid ->numY;
+
     double h2 = 0.5 ;
     for( size_t i = 1; i < fluid -> numX ; i++ )
     {
@@ -271,7 +278,7 @@ int n_fluid_advectSmoke( N_FLUID *fluid )
     }
 
     memcpy( fluid -> m , fluid -> newM , fluid -> numCells * sizeof( double ) );
-    
+
     return TRUE ;
 }
 
@@ -308,10 +315,10 @@ int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , doub
         {
 
             if( reset )
-			{
-				fluid -> s[i*n + j] = 1.0;
-			}
-			
+            {
+                fluid -> s[i*n + j] = 1.0;
+            }
+
             double dx = (i + 0.5) - x;
             double dy = (j + 0.5) - y;
 
@@ -367,13 +374,16 @@ int n_fluid_draw( N_FLUID *fluid , double cScale )
     double minP = fluid -> p[0];
     double maxP = fluid -> p[0];
 
-    /*for( size_t i = 0; i < fluid -> numCells; i++)
+    if( fluid -> showPressure )
     {
-        minP = MIN( minP , fluid -> p[i] );
-        maxP = MAX( maxP , fluid -> p[i] );
-    }*/
+        for( size_t i = 0; i < fluid -> numCells; i++)
+        {
+            minP = MIN( minP , fluid -> p[i] );
+            maxP = MAX( maxP , fluid -> p[i] );
+        }
+    }
 
-    ALLEGRO_COLOR color = al_map_rgb( 255, 255, 255 );
+    ALLEGRO_COLOR color ;
 
     for (size_t i = 0; i < fluid -> numX; i++) 
     {
@@ -384,12 +394,32 @@ int n_fluid_draw( N_FLUID *fluid , double cScale )
             int64_t cx = x + cScale ; 
             int64_t cy = y + cScale ;
 
-            //double p = fluid -> p[i*n + j];
-            //double s = fluid -> m[i*n + j];
-            //color = n_fluid_getSciColor( p , minP , maxP );
-
             double s = fluid -> m[i*n + j];
-            al_draw_filled_rectangle( x , y , cx , cy , al_map_rgb_f( 1.0 - s , 0 , 0 ) );
+
+            if( fluid -> showPaint )
+            {
+                color = n_fluid_getSciColor( s, 0.0, 1.0 );
+            }
+            else if( fluid -> showPressure) 
+            {
+                float color_vec_f[ 3 ] = { 0.0 , 0.0 , 0.0 };
+                double p = fluid -> p[i*n + j];
+                color = n_fluid_getSciColor( p , minP , maxP );
+                if( fluid -> showSmoke )
+                {
+                    al_unmap_rgb_f( color , color_vec_f , color_vec_f + 1 , color_vec_f + 2 ); 
+                    color = al_map_rgb_f( MAX( 0.0, color_vec_f[ 0 ] - s ) , MAX( 0.0 , color_vec_f[ 1 ] - s ) , MAX( 0.0, color_vec_f[ 2 ] - s) );
+                }
+            }
+            else if( fluid -> showSmoke )
+            {
+                color = al_map_rgb_f( 1.0 - s , 0.0 , 0.0 );
+            }
+            else
+            {
+                color = al_map_rgb_f( s , s , s );
+            }
+            al_draw_filled_rectangle( x , y , cx , cy , color );
         }
     }
     return TRUE ;

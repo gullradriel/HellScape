@@ -1,6 +1,6 @@
 =============================================
 
-KrampusHack 2022 HellscapeSpaceShuttle
+KrampusHack 2022 Hellscape
 
 =============================================
 
@@ -19,7 +19,7 @@ You don't have to use all of these ideas :)
 
 =============================================
 
-How I achieved the rules:
+How I tried to achieve the rules:
 
 1. You're a robot that is interacting with it's environment to save his life
 2. After being attacked by an Aliens, a spaceship containing robots have crashed into a hellish kind of planet. You're
@@ -31,38 +31,30 @@ How I achieved the rules:
 
 =============================================
 
-How to play:
+What I achieved:
 
-* Explore the area with your robot using direction keys, try to find helpfull items to collect and to help you in your
-  search
-* Magic blocks are a must as they can bend the path of corrosive fluids
+A nice fluid simulation, it's red and it has musics !
+I didn't had enough time to use it in a real game, and it's a bit slow too. 
+Being ill for a few days ruined my time.
+
+Special thanks to Matthias Müller, Physics research head at nvidia for his papers here:
+https://matthias-research.github.io/pages/tenMinutePhysics/
 
 =============================================
 
 Keys:
 
-* Direction keys
-* Mouse to interact with special blocks / aim
-* Mouse left button or space to attack
-* Key F1 to F... select item assigned to key. When you collect an item it is autoassigned to one.
+* Mouse to move the block inside the smoke
+* Key F1-F2 => showSmoke or not
+* Key F3-F4 => showPressure or not (can be used in conjonction of showSmoke)
+* Key F5-F6 => showPaint psychedelic coloring
 
 =============================================
 
-Items to be collected:
-
-* Armour
-* Magic blocks that you can add and remove on the map to help you access some parts of the map, or block something with
-it. Don't forget to collect it back if you do not need it anymore. Magic blocks are put and removed remotely, using the
-mouse pointer.
-* Radar with map and pointers to safety spaceship location
-* Old tape radio with a few more songs to listen while playing
-
-==============================================
-
 Options: 
 
-* Configurable log level, example: ./HellscapeSpaceShuttle.exe -V DEBUG 
-* Cheat: editable player_state.json after first execution
+* Configurable log level, example: ./Hellscape.exe -V DEBUG 
+* Editable fluid_state.json
 
 ==============================================
 
