@@ -196,7 +196,7 @@ int main( int argc, char *argv[] )
     }
 
 
-    al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_FULLSCREEN );
+    al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_FULLSCREEN_WINDOW );
     display = al_create_display( WIDTH, HEIGHT );
     if( !display )
     {
@@ -353,7 +353,7 @@ int main( int argc, char *argv[] )
 
         /* set fluid */
         double fluid_factor = 8.0 ;
-        fluid_sim = new_n_fluid( 10000.0 , 0.0 , 4 , fps / logictime , 1.9 , WIDTH / fluid_factor , HEIGHT / fluid_factor );
+        fluid_sim = new_n_fluid( 10000.0 , 0.0 , 16 , 0.5 , 1.9 , WIDTH / fluid_factor , HEIGHT / fluid_factor );
 
         size_t n = fluid_sim -> numY;
         double inVel = 2.0;
@@ -571,16 +571,24 @@ int main( int argc, char *argv[] )
                     vy = (old_my - my ) / logictime ;
                     old_mx = mx ; 
                     old_my = my ;
-                    n_fluid_setObstacle( fluid_sim , mx / fluid_factor , my / fluid_factor , vx , vy , 4.0 );
-                }
-                do_logic = 0 ;
-            }
-
+					n_fluid_setObstacle( fluid_sim , mx / fluid_factor , ( my / fluid_factor ) - 20.0 , vx , vy , 7.0 , 1 );
+					n_fluid_setObstacle( fluid_sim , (mx / fluid_factor) - 15 , my / fluid_factor , vx , vy , 10.0 , 0 );
+					n_fluid_setObstacle( fluid_sim , mx / fluid_factor , ( my / fluid_factor ) + 20.0 , vx , vy , 7.0 , 0 );
+					size_t n = fluid_sim -> numY;
+					double inVel = 2.0;
+					double pipeH = 0.2 * fluid_sim -> numY;
+					size_t minJ = floor( 0.5 * fluid_sim -> numY - 0.5 * pipeH );
+					size_t maxJ = floor( 0.5 * fluid_sim -> numY + 0.5 * pipeH );
+					for (size_t j = minJ; j < maxJ; j++)
+						fluid_sim -> m[j] = 0.0;
+				}
+				do_logic = 0 ;
+			}
             if( do_draw == 1 )
             {
                 al_set_target_bitmap( scrbuf );
                 n_fluid_draw( fluid_sim , fluid_factor );
-                al_draw_circle( mx , my , 4.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
+                al_draw_circle( mx , my , 16.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
                 al_acknowledge_resize( display );
                 int w = al_get_display_width(  display );
                 int h = al_get_display_height( display );

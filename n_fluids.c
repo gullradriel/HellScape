@@ -297,7 +297,7 @@ int n_fluid_set_params( N_FLUID *fluid , double gravity , double dt , size_t num
     return TRUE ;
 }
 
-int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r )
+int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r , bool reset )
 {
     __n_assert( fluid , return FALSE );
 
@@ -307,12 +307,15 @@ int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , doub
         for( size_t j = 1 ; j < fluid -> numY - 2 ; j++ )
         {
 
-            fluid -> s[i*n + j] = 1.0;
-
+            if( reset )
+			{
+				fluid -> s[i*n + j] = 1.0;
+			}
+			
             double dx = (i + 0.5) - x;
             double dy = (j + 0.5) - y;
 
-            if (dx * dx + dy * dy < r * r) 
+            if( i > 7 && ( dx * dx + dy * dy < r * r) )
             {
                 fluid -> s[i*n + j] = 0.0;
                 fluid -> m[i*n + j] = 1.0;

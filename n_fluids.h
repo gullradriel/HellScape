@@ -52,7 +52,7 @@ int n_fluid_simulate( N_FLUID *fluid );
 
 int n_fluid_set_params( N_FLUID *fluid , double gravity , double dt , size_t numIters , bool overRelaxation );
 
-int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r );
+int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r , bool reset );
 
 int n_fluid_apply_obstacle_list( N_FLUID *fluid );
 
