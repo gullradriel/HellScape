@@ -69,6 +69,7 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     fluid -> showPressure = 0 ;
     fluid -> showPaint = 0 ;
 	fluid -> fluid_production_percentage = 0.1 ;
+	fluid -> cScale = 16.0 ;
 
     double d_val = 1.0 ;
     n_memset( fluid -> m , &d_val , sizeof( d_val ) , fluid -> numCells );
@@ -366,7 +367,7 @@ ALLEGRO_COLOR n_fluid_getSciColor( double val , double minVal , double maxVal )
     return al_map_rgb_f( r , g , b );
 }
 
-int n_fluid_draw( N_FLUID *fluid , double cScale ) 
+int n_fluid_draw( N_FLUID *fluid ) 
 {
     __n_assert( fluid , return FALSE );
 
@@ -385,6 +386,7 @@ int n_fluid_draw( N_FLUID *fluid , double cScale )
     }
 
     ALLEGRO_COLOR color ;
+    double cScale = fluid -> cScale ;
 
     for (size_t i = 0; i < fluid -> numX; i++) 
     {

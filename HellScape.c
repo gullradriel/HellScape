@@ -247,9 +247,11 @@ int main( int argc, char *argv[] )
     al_play_sample(sample_data[ 0 ] , 1 , 0 , 1 , ALLEGRO_PLAYMODE_LOOP , NULL );
 
     /* set fluid */
-    double fluid_factor = 8.0 ;
+    Malloc( fluid_sim , N_FLUID , 1 );
+    load_fluid_state( fluid_sim , "fluid_state.json" );
+    double fluid_factor = fluid_sim -> cScale ;
+    Free( fluid_sim );
     fluid_sim = new_n_fluid( 10000.0 , 0.0 , 40 , 0.5 , 1.9 , WIDTH / fluid_factor , HEIGHT / fluid_factor );
-    
     load_fluid_state( fluid_sim , "fluid_state.json" );
 
     size_t n = fluid_sim -> numY;
@@ -530,7 +532,7 @@ int main( int argc, char *argv[] )
         {
             al_set_target_bitmap( scrbuf );
 
-            n_fluid_draw( fluid_sim , fluid_factor );
+            n_fluid_draw( fluid_sim );
             al_draw_circle( mx , my - 20 * fluid_factor , 7.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
             al_draw_circle( mx - 15 * fluid_factor , my , 10.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
             al_draw_circle( mx , my + 20 * fluid_factor , 7.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );

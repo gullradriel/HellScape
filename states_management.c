@@ -51,6 +51,7 @@ int load_fluid_state( N_FLUID *fluid , char *state_filename )
 	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "gravity" );        if( cJSON_IsNumber( value ) ){ fluid -> gravity  = value -> valuedouble ; } 
 	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "overRelaxation" ); if( cJSON_IsNumber( value ) ){ fluid -> overRelaxation = value -> valuedouble ; } 
 	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "fluid_production_percentage" ); if( cJSON_IsNumber( value ) ){ fluid -> fluid_production_percentage = value -> valuedouble ; } 
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "cScale" ); if( cJSON_IsNumber( value ) ){ fluid -> cScale = value -> valuedouble ; } 
 
 	cJSON_Delete(monitor_json);
 	free_nstr( &data );

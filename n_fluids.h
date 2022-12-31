@@ -36,6 +36,7 @@ extern "C" {
         bool showPressure ;
 		
 		double fluid_production_percentage ;
+        double cScale ;
 				
         double *u ;
         double *newU ;
@@ -76,7 +77,7 @@ extern "C" {
 
     ALLEGRO_COLOR n_fluid_getSciColor( double val , double minVal , double maxVal );
 
-    int n_fluid_draw( N_FLUID *fluid , double cScale );
+    int n_fluid_draw( N_FLUID *fluid );
 
 #ifdef __cplusplus
 }
