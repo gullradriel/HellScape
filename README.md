@@ -64,4 +64,8 @@ Build:
 * Makefile works on Linux, Windows
 * get into Makefile directory and type make
 
+git clone git@github.com:gullradriel/HellScape.git
+cd HellScape
+make
+
 ==============================================
