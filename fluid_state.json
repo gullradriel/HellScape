@@ -1,0 +1,7 @@
+{
+	"numIters":	40 ,
+	"density":	10000.0,
+	"dt":	0.32 ,
+	"gravity":	0.0,
+	"overRelaxation":	1.9
+}
