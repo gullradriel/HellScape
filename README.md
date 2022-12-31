@@ -62,5 +62,6 @@ Build:
 
 * Need gcc and allegro5 installed 
 * Makefile works on Linux, Windows
+* get into Makefile directory and type make
 
 ==============================================

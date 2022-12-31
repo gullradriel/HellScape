@@ -4,5 +4,5 @@
 	"dt":	0.32 ,
 	"gravity":	0.0,
 	"overRelaxation":	1.9,
-	"fluid_production_percentage": 0.05            
+	"fluid_production_percentage": 0.25            
 }

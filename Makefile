@@ -9,8 +9,8 @@ OPT=-W -Wall -D_XOPEN_SOURCE=600 -D_XOPEN_SOURCE_EXTENTED -std=gnu99 -O3
 #OPT+=-Og
 
 
-VPATH=../../LIB/src/
-INCLUDE=../../LIB/include
+VPATH=LIB/src/
+INCLUDE=LIB/include
 
 #CLIBS=`pkg-config --cflags --libs allegro-5 allegro_acodec-5 allegro_audio-5 allegro_color-5 allegro_dialog-5 allegro_font-5 allegro_image-5 allegro_main-5 allegro_memfile-5 allegro_physfs-5 allegro_primitives-5 allegro_ttf-5`
 
