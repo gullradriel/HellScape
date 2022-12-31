@@ -3,5 +3,6 @@
 	"density":	10000.0,
 	"dt":	0.32 ,
 	"gravity":	0.0,
-	"overRelaxation":	1.9
+	"overRelaxation":	1.9,
+	"fluid_production_percentage": 0.5            
 }

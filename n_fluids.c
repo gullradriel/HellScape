@@ -68,6 +68,7 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     fluid -> showSmoke = 1 ;
     fluid -> showPressure = 0 ;
     fluid -> showPaint = 0 ;
+	fluid -> fluid_production_percentage = 0.1 ;
 
     double d_val = 1.0 ;
     n_memset( fluid -> m , &d_val , sizeof( d_val ) , fluid -> numCells );

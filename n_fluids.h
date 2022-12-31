@@ -34,7 +34,9 @@ extern "C" {
         bool showSmoke ;
         bool showPaint ;
         bool showPressure ;
-
+		
+		double fluid_production_percentage ;
+				
         double *u ;
         double *newU ;
 

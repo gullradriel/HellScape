@@ -269,7 +269,7 @@ int main( int argc, char *argv[] )
             }
         }
     }
-    double pipeH = 0.2 * fluid_sim -> numY;
+    double pipeH = fluid_sim -> fluid_production_percentage * fluid_sim -> numY;
     size_t minJ = floor( 0.5 * fluid_sim -> numY - 0.5 * pipeH );
     size_t maxJ = floor( 0.5 * fluid_sim -> numY + 0.5 * pipeH );
     for (size_t j = minJ; j < maxJ; j++)
@@ -517,7 +517,7 @@ int main( int argc, char *argv[] )
             n_fluid_setObstacle( fluid_sim , (mx / fluid_factor) - 15 , my / fluid_factor , vx , vy , 10.0 , 0 );
             n_fluid_setObstacle( fluid_sim , mx / fluid_factor , ( my / fluid_factor ) + 20.0 , vx , vy , 7.0 , 0 );
 
-            double pipeH = 0.2 * fluid_sim -> numY;
+            double pipeH = fluid_sim -> fluid_production_percentage * fluid_sim -> numY;
             size_t minJ = floor( 0.5 * fluid_sim -> numY - 0.5 * pipeH );
             size_t maxJ = floor( 0.5 * fluid_sim -> numY + 0.5 * pipeH );
             for (size_t j = minJ; j < maxJ; j++)
