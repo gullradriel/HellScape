@@ -28,8 +28,8 @@ extern "C" {
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_acodec.h"
 
-#define WIDTH 1280
-#define HEIGHT 800
+#define WIDTH 1920
+#define HEIGHT 1080
 
 #define RESERVED_SAMPLES   16
 #define MAX_SAMPLE_DATA    10
