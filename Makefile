@@ -55,8 +55,8 @@ else
 	CC=gcc
 	EXT=
     ifeq ($(UNAME_S),Linux)
-        CFLAGS+= -I../../LIB/include $(OPT)
-        CLIBS+= $(ALLEGRO_LIBS) -L../. -lpthread -lm -no-pie
+        CFLAGS+= -I$(INCLUDE) $(OPT)
+        CLIBS+= $(ALLEGRO_LIBS) -lpthread -lm -no-pie
     endif
     ifeq ($(UNAME_S),SunOS)
         CC=cc
