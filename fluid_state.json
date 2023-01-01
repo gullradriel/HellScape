@@ -1,6 +1,6 @@
 {
-	"numIters":	8,
-	"density":	1000.0,
+	"numIters":	20,
+	"density":	10000.0,
 	"dt":	0.5 ,
 	"gravity":	0.0,
 	"overRelaxation":	1.9,
