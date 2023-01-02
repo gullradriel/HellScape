@@ -515,9 +515,9 @@ int main( int argc, char *argv[] )
                 old_mx = mx ; 
                 old_my = my ;
             }
-            n_fluid_setObstacle( fluid_sim , mx / fluid_factor , ( my / fluid_factor ) - 20.0 , vx , vy , 7.0 , 1 );
-            n_fluid_setObstacle( fluid_sim , (mx / fluid_factor) - 15 , my / fluid_factor , vx , vy , 10.0 , 0 );
-            n_fluid_setObstacle( fluid_sim , mx / fluid_factor , ( my / fluid_factor ) + 20.0 , vx , vy , 7.0 , 0 );
+            n_fluid_setObstacle( fluid_sim , mx / fluid_factor , ( my / fluid_factor ) - 20.0 , vx , vy , fluid_factor , 1 );
+            n_fluid_setObstacle( fluid_sim , (mx / fluid_factor) - 15 , my / fluid_factor , vx , vy , fluid_factor + fluid_factor/3 , 0 );
+            n_fluid_setObstacle( fluid_sim , mx / fluid_factor , ( my / fluid_factor ) + 20.0 , vx , vy , fluid_factor , 0 );
 
             double pipeH = fluid_sim -> fluid_production_percentage * fluid_sim -> numY;
             size_t minJ = floor( 0.5 * fluid_sim -> numY - 0.5 * pipeH );
@@ -533,9 +533,9 @@ int main( int argc, char *argv[] )
             al_set_target_bitmap( scrbuf );
 
             n_fluid_draw( fluid_sim );
-            al_draw_circle( mx , my - 20 * fluid_factor , 7.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
-            al_draw_circle( mx - 15 * fluid_factor , my , 10.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
-            al_draw_circle( mx , my + 20 * fluid_factor , 7.0 * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
+            al_draw_circle( mx , my - 20 * fluid_factor , fluid_factor * fluid_factor , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
+            al_draw_circle( mx - 15 * fluid_factor , my , fluid_factor * fluid_factor + (fluid_factor*fluid_factor)/3 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
+            al_draw_circle( mx , my + 20 * fluid_factor , fluid_factor *fluid_factor, al_map_rgb( 255 , 0 , 0 ) , 2.0 );
 
             static N_STR *textout = NULL ;
             nstrprintf( textout , "[F1/F2]->showSmoke:%d [F3/F4]->showPressure:%d [F5/F6]showPaint: %d" , fluid_sim -> showSmoke , fluid_sim -> showPressure , fluid_sim -> showPaint );

@@ -214,29 +214,55 @@ int n_fluid_advectVel( N_FLUID *fluid )
 
     size_t n = fluid ->numY;
 
-    memcpy( fluid -> newU , fluid -> u , fluid -> numCells * sizeof( double ) );
-    memcpy( fluid -> newV , fluid -> v , fluid -> numCells * sizeof( double ) );
-
-    double h2 = 0.5 ;
-    for( size_t i = 1; i < fluid -> numX ; i++ )
+    /*memcpy( fluid -> newU , fluid -> u , fluid -> numCells * sizeof( double ) );
+    memcpy( fluid -> newV , fluid -> v , fluid -> numCells * sizeof( double ) );*/
+	
+	memcpy( fluid -> newU , fluid -> u , n * sizeof( double ) );
+	memcpy( fluid -> newV , fluid -> v , n * sizeof( double ) );
+	
+	memcpy( &fluid -> newU[ ( fluid -> numY - 1 ) * n ] , &fluid -> u[ ( fluid -> numY - 1 ) * n ] , n * sizeof( double ) );
+	memcpy( &fluid -> newV[ ( fluid -> numY - 1 ) * n ] , &fluid -> v[ ( fluid -> numY - 1 ) * n ] , n * sizeof( double ) );
+	
+	
+	for( size_t i = 0 ; i < fluid -> numX ; i++ )
     {
-        for( size_t j = 1; j < fluid -> numY ; j++ )
+		size_t index = i * n ;
+		fluid -> newU[ index ] = fluid -> u[ index ] ;
+		fluid -> newV[ index ] = fluid -> v[ index ] ;
+		
+		index = i * n + fluid -> numY - 1 ;
+		fluid -> newU[ index ] = fluid -> u[ index ] ;
+		fluid -> newV[ index ] = fluid -> v[ index ] ;
+	}
+	
+    double h2 = 0.5 ;
+    for( size_t i = 1; i < fluid -> numX -1 ; i++ )
+    {
+        for( size_t j = 1; j < fluid -> numY -1 ; j++ )
         {
+			size_t index = ( i * n ) + j ;
+			size_t prev_index_i = ( i - 1 ) * n + j ;
+			size_t prev_index_j = ( i * n ) + j - 1 ;
+			
             // u component
-            if(fluid -> s[i*n + j] != 0.0 && fluid -> s[(i-1)*n + j] != 0.0 && j < fluid -> numY - 1)
+            if(fluid -> s[ index ] != 0.0 && fluid -> s[ prev_index_i ] != 0.0 )
             {
                 double x = i;
                 double y = j + h2;
-                double u = fluid -> u[i*n + j];
+                double u = fluid -> u[ index ];
                 double v = n_fluid_avgV( fluid , i , j );
                 //double v = n_fluid_sampleField( fluid , x , y , N_FLUID_V_FIELD );
                 x = x - fluid -> dt*u;
                 y = y - fluid -> dt*v;
                 u = n_fluid_sampleField( fluid , x , y , N_FLUID_U_FIELD );
-                fluid ->newU[i*n + j] = u;
+                fluid ->newU[ index ] = u;
             }
+			else
+			{
+				fluid -> newU[ index ] = fluid -> u[ index ];
+			}
             // v component
-            if (fluid ->s[i*n + j] != 0.0 && fluid ->s[i*n + j-1] != 0.0 && i < fluid ->numX - 1) {
+            if (fluid ->s[ index ] != 0.0 && fluid ->s[ prev_index_j ] != 0.0 ) {
                 double x = i + h2;
                 double y = j;
                 double u = n_fluid_avgU( fluid , i, j );
@@ -245,12 +271,25 @@ int n_fluid_advectVel( N_FLUID *fluid )
                 x = x - fluid -> dt*u;
                 y = y - fluid -> dt*v;
                 v = n_fluid_sampleField( fluid , x , y , N_FLUID_V_FIELD );
-                fluid ->newV[i*n + j] = v;
+                fluid ->newV[ index ] = v;
             }
+			else
+			{
+				fluid -> newV[ index ] = fluid -> v[ index ];
+			}
         }	 
     }
-    memcpy( fluid -> u , fluid -> newU , fluid -> numCells * sizeof( double ) );
-    memcpy( fluid -> v , fluid -> newV , fluid -> numCells * sizeof( double ) );
+	double *ptr = fluid -> u ;
+	fluid -> u = fluid -> newU ;
+	fluid -> newU = ptr ;
+	
+	ptr = fluid -> v ;
+	fluid -> v = fluid -> newV ;
+	fluid -> newV = ptr ;
+	
+    /* memcpy( fluid -> u , fluid -> newU , fluid -> numCells * sizeof( double ) );
+    memcpy( fluid -> v , fluid -> newV , fluid -> numCells * sizeof( double ) );*/
+    
     return TRUE ;
 }
 
@@ -261,11 +300,20 @@ int n_fluid_advectSmoke( N_FLUID *fluid )
     size_t n = fluid ->numY;
     double h2 = 0.5 ;
 
-    memcpy( fluid -> newM , fluid -> m , fluid -> numCells * sizeof( double ) );
-
-    for( size_t i = 1; i < fluid -> numX - 1 ; i++ )
+    memcpy( fluid -> newM , fluid -> m , n * sizeof( double ) );
+	memcpy( &fluid -> newM[ ( fluid -> numY - 1 ) * n ] , &fluid -> m[ ( fluid -> numY - 1 ) * n ] , n * sizeof( double ) );
+		
+	for( size_t i = 0 ; i < fluid -> numX ; i++ )
     {
-        for( size_t j = 1; j < fluid -> numY - 1 ; j++ )
+		size_t index = i * n ;
+		fluid -> newM[ index ] = fluid -> m[ index ] ;
+		index = i * n + fluid -> numY - 1 ;
+		fluid -> newM[ index ] = fluid -> m[ index ] ;
+	}
+	
+    for( size_t i = 1; i < fluid -> numX-1 ; i++ )
+    {
+        for( size_t j = 1; j < fluid -> numY-1 ; j++ )
         {
             if( fluid -> s[i*n + j] != 0.0 )
             {
@@ -276,11 +324,16 @@ int n_fluid_advectSmoke( N_FLUID *fluid )
 
                 fluid ->newM[i*n + j] = n_fluid_sampleField( fluid , x , y , N_FLUID_S_FIELD );
             }
+            else
+            {
+                fluid ->newM[i*n + j] = fluid ->m[i*n + j];
+            }
         }	 
     }
-
-    memcpy( fluid -> m , fluid -> newM , fluid -> numCells * sizeof( double ) );
-
+    double *ptr = fluid -> m ;
+	fluid -> m = fluid -> newM ;
+	fluid -> newM = ptr ;
+	
     return TRUE ;
 }
 
