@@ -1,9 +1,9 @@
 {
-	"numIters":	24,
+	"numIters":	8 ,
 	"density":	10000.0,
 	"dt":	0.5 ,
 	"gravity":	0.0,
 	"overRelaxation":	1.9,
-	"fluid_production_percentage": 0.25,
-	"cScale": 8.0           
+	"fluid_production_percentage": 0.3,
+	"cScale": 12.0           
 }
