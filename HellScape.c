@@ -27,9 +27,6 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
-#define WIDTH 1920
-#define HEIGHT 1080
-
 #define RESERVED_SAMPLES   16
 #define MAX_SAMPLE_DATA    10
 
@@ -47,6 +44,10 @@ ALLEGRO_TIMER *fps_timer = NULL ;
 ALLEGRO_TIMER *logic_timer = NULL ;
 
 N_FLUID *fluid_sim = NULL ;
+size_t WIDTH  = 1280 ,
+       HEIGHT = 800 ;
+bool fullscreen = 0 ;
+char *bgmusic = NULL ;
 
 int main( int argc, char *argv[] )
 {
@@ -59,12 +60,18 @@ int main( int argc, char *argv[] )
      */
     set_log_level( LOG_NOTICE );
 
+    if( load_app_state( "app_state.json" , &WIDTH , &HEIGHT , &fullscreen , &bgmusic  ) != TRUE )
+    {
+        n_log( LOG_ERR , "couldn't load app_state.json !");
+        exit( 1 );
+    }
+    n_log( LOG_DEBUG , "%s starting with params: %dx%d fullscreen(%d), music: %s" , argv[ 0 ] , WIDTH , HEIGHT , fullscreen , _str( bgmusic ) );
+
+
     N_STR *log_file = NULL ;
     nstrprintf( log_file, "%s.log", argv[ 0 ] ) ;
     /*set_log_file( _nstr( log_file ) );*/
     free_nstr( &log_file );
-
-    n_log( LOG_NOTICE, "%s is starting ...", argv[ 0 ] );
 
     /* allegro 5 + addons loading */
     if (!al_init())
@@ -203,7 +210,14 @@ int main( int argc, char *argv[] )
     }
 
 
-    al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_FULLSCREEN_WINDOW );
+    if( fullscreen )
+    {
+        al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_FULLSCREEN_WINDOW );
+    }
+    else
+    {
+        al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_WINDOWED );
+    }
     display = al_create_display( WIDTH, HEIGHT );
     if( !display )
     {
@@ -240,9 +254,10 @@ int main( int argc, char *argv[] )
     };
     int key[ 19 ] = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
 
-    if( !( sample_data[ 0 ]  = al_load_sample( "DATA/Musics/background_music.ogg" ) ) )
+    if( !( sample_data[ 0 ]  = al_load_sample( bgmusic ) ) )
     {
-        n_abort( "Could not load DATA/Musics/background_music.ogg" );
+        n_log( LOG_ERR , "Could not load %s" , bgmusic );
+        exit( 1 );
     }
     al_play_sample(sample_data[ 0 ] , 1 , 0 , 1 , ALLEGRO_PLAYMODE_LOOP , NULL );
 
