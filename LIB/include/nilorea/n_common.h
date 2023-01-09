@@ -333,7 +333,6 @@ define RWLOCK_LOGLEVEL LOG_DEBUG
 #endif
 
 /*! Macro for initializing a rwlock */
-#ifdef SOLARIS
 #define init_lock( __rwlock_mutex ) \
         ({ \
          pthread_rwlockattr_t __attr ; \
@@ -352,26 +351,6 @@ define RWLOCK_LOGLEVEL LOG_DEBUG
          } while( 0 ); \
          __ret ; \
          })
-#else
-#define init_lock( __rwlock_mutex ) \
-        ({ \
-         pthread_rwlockattr_t __attr ; \
-         pthread_rwlockattr_init( &__attr ); \
-         int __ret = 0 ; \
-         do \
-         { \
-         n_log( RWLOCK_LOGLEVEL , "init_lock %s" , #__rwlock_mutex ); \
-         __rwlock_mutex = (pthread_rwlock_t)PTHREAD_RWLOCK_INITIALIZER ; \
-         __ret = pthread_rwlock_init( &(__rwlock_mutex) , &__attr ); \
-         if( __ret != 0 ) \
-         { \
-         n_log( LOG_ERR , "Error %s while initializing %s at %s:%s:%d" , strerror( __ret ) , #__rwlock_mutex , __FILE__ , __func__ , __LINE__ ); \
-         } \
-         pthread_rwlockattr_destroy( &__attr ); \
-         } while( 0 ); \
-         __ret ; \
-         })
-#endif
 
 /*! Macro for acquiring a read lock on a rwlock mutex */
 #define read_lock( __rwlock_mutex ) \

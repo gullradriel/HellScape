@@ -32,7 +32,7 @@
 /*! name of program to debug (addr2line & co) */
 static const char *__n_stack_traced_progam_name ;
 
-#ifdef _WIN32
+#ifdef __windows__
 #include <windows.h>
 #include <imagehlp.h>
 #else
@@ -111,7 +111,7 @@ int addr2line(char const * const program_name, void const * const addr)
 } /* addr2line(...) */
 
 
-#ifdef _WIN32
+#ifdef __windows__
 /*!\fn void windows_print_stacktrace(CONTEXT* context)
  *\brief unroll and print a windows context stacktrace
  *\param context the context to unroll

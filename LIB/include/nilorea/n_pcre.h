@@ -13,7 +13,7 @@ extern "C"
 {
 #endif
 
-#ifdef SOLARIS
+#ifdef __sun
 #include <pcre/pcre.h>
 #else
 #include <pcre.h>

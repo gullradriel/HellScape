@@ -8,6 +8,7 @@
 
 #include "n_fluids.h"
 #include "nilorea/n_common.h"
+#include "nilorea/n_thread_pool.h"
 
 #define N_FLUID_U_FIELD 0
 #define N_FLUID_V_FIELD 1

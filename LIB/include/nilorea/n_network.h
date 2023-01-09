@@ -40,7 +40,7 @@ extern "C"
 
 #ifndef SOCKET
 /*! default socket declaration */
-#ifdef WINDOWS
+#ifdef __windows__
 #ifndef ARCH32BITS
 /*! socket type for windows */
 typedef long long unsigned int SOCKET_TYPE ;
@@ -48,7 +48,7 @@ typedef long long unsigned int SOCKET_TYPE ;
 #define SOCKET SOCKET_TYPE
 #endif
 #else
-/*! socket type for linux */
+/*! socket type for windows */
 typedef int SOCKET_TYPE ;
 /*! socket macro shortcut */
 #define SOCKET SOCKET_TYPE
@@ -83,7 +83,7 @@ void netw_sigchld_handler( int sig );
 /*! install the reap zombie process signal handler */
 #define netw_server_set_signal_handler \
 { \
-        #ifdef LINUX \
+        #ifdef __linux__ \
         struct sigaction sa; \
         sa.sa_handler = sigchld_handler; /* reap dead processes */ \
         sigemptyset(&sa.sa_mask); \
@@ -118,8 +118,6 @@ void netw_sigchld_handler( int sig );
 #ifndef ECONNRESET
 #define ECONNRESET 104
 #endif
-
-
 
 #if (_WIN32_WINNT < 0x0501)
 #undef _WIN32_WINNT
