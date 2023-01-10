@@ -52,6 +52,7 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     fluid -> gravity = gravity ;
     fluid -> numIters = numIters ;
     fluid -> dt = dt ;
+    fluid -> h = 1.0 / 100.0 ;
     fluid -> overRelaxation = overRelaxation ;
     fluid -> numX = sx + 2 ;
     fluid -> numY = sy + 2 ;
@@ -71,6 +72,9 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     fluid -> showPaint = 0 ;
 	fluid -> fluid_production_percentage = 0.1 ;
 	fluid -> cScale = 16.0 ;
+    // double precision. Taking 'value', if( fabs( value ) < float_tolerance )  value is considered as zero
+	fluid -> negative_float_tolerance = -0.0001 ;
+	fluid -> positive_float_tolerance =  0.0001 ;
 
     double d_val = 1.0 ;
     n_memset( fluid -> m , &d_val , sizeof( d_val ) , fluid -> numCells );
@@ -88,7 +92,7 @@ int n_fluid_integrate( N_FLUID *fluid )
     {
         for( size_t j = 1; j < fluid -> numY - 1 ; j++ )
         {
-            if( fluid -> s[ i*n + j ] != 0.0 && fluid ->s [ i*n + j-1 ] != 0.0 )
+            if( !_z( fluid , s[ i*n + j ] ) && !_z( fluid , s[ i*n + j-1 ] ) )
                 fluid -> v[ i*n + j ] += fluid -> gravity * fluid -> dt ;
         }	 
     }
@@ -99,7 +103,8 @@ int n_fluid_solveIncompressibility( N_FLUID *fluid )
 {
     __n_assert( fluid , return FALSE );
     size_t n  = fluid -> numY ;
-    double cp = fluid -> density / fluid -> dt ;
+
+    double cp = ( fluid -> density * fluid -> h ) / fluid -> dt ;
 
     for( size_t iter = 0 ; iter < fluid -> numIters ; iter++ )
     {
@@ -107,7 +112,7 @@ int n_fluid_solveIncompressibility( N_FLUID *fluid )
         {
             for( size_t j = 1 ; j < fluid -> numY - 1 ; j++ ) 
             {
-                if( fluid ->s[ i*n + j ] == 0.0 )
+                if( _z( fluid , s[ i*n + j ] ) )
                     continue;
 
                 double sx0 = fluid ->s[ (i - 1)*n + j ];
@@ -115,12 +120,11 @@ int n_fluid_solveIncompressibility( N_FLUID *fluid )
                 double sy0 = fluid ->s[ i*n + j - 1 ];
                 double sy1 = fluid ->s[ i*n + j + 1 ];
                 double s = sx0 + sx1 + sy0 + sy1;
-                if( s == 0.0 )
+                if( _zd( fluid , s ) )
                     continue;
 
                 double div = fluid ->u[(i+1)*n + j] - fluid ->u[i*n + j] + fluid ->v[i*n + j+1] - fluid ->v[i*n + j];
-                double p = -div / s ;
-                p *= fluid -> overRelaxation ;
+                double p = ( -div * fluid -> overRelaxation ) / s ;
                 fluid ->p[i*n + j] += cp * p;
                 fluid ->u[i*n + j] -= sx0 * p;
                 fluid ->u[(i+1)*n + j] += sx1 * p;
@@ -153,11 +157,11 @@ double n_fluid_sampleField( N_FLUID *fluid , double x , double y , uint32_t fiel
 {
     __n_assert( fluid , return FALSE );
     size_t n = fluid -> numY;
-    double h1 = 1.0 ;
-    double h2 = 0.5 ;
+    double h1 = 1.0 / fluid -> h ;
+    double h2 = 0.5 * fluid -> h ;
 
-    x = MIN( x , fluid ->numX );
-    y = MIN( y , fluid ->numY );
+    x = MAX( MIN( x , fluid ->numX * fluid -> h ) , fluid -> h );
+    y = MAX( MIN( y , fluid ->numY * fluid -> h ) , fluid -> h );
 
     double dx = 0.0;
     double dy = 0.0;
@@ -171,11 +175,11 @@ double n_fluid_sampleField( N_FLUID *fluid , double x , double y , uint32_t fiel
     }
 
     double x0 = MIN( floor( (x-dx) * h1 ) , fluid ->numX - 1 );
-    double tx = ((x-dx) - x0 ) * h1;
+    double tx = ((x-dx) - x0 * fluid -> h ) * h1;
     double x1 = MIN(x0 + 1, fluid ->numX-1);
 
     double y0 = MIN( floor( (y-dy)*h1 ) , fluid ->numY - 1 );
-    double ty = ((y-dy) - y0) * h1;
+    double ty = ((y-dy) - y0 * fluid -> h ) * h1;
     double y1 = MIN( y0 + 1 , fluid ->numY-1 );
 
     double sx = 1.0 - tx;
@@ -218,29 +222,29 @@ int n_fluid_advectVel( N_FLUID *fluid )
     memcpy( fluid -> newU , fluid -> u , fluid -> numCells * sizeof( double ) );
     memcpy( fluid -> newV , fluid -> v , fluid -> numCells * sizeof( double ) );
 
-    double h2 = 0.5 ;
+    double h2 = 0.5 * fluid -> h ;
     for( size_t i = 1; i < fluid -> numX ; i++ )
     {
         for( size_t j = 1; j < fluid -> numY ; j++ )
         {
 			size_t index = i*n + j ;
             // u component
-            if(fluid -> s[index] != 0.0 && fluid -> s[(i-1)*n + j] != 0.0 && j < fluid -> numY - 1)
+            if( !_z( fluid , s[index] ) && !_z( fluid , s[ (i-1)*n + j ] ) && j < fluid -> numY - 1)
             {
-                double x = i;
-                double y = j + h2;
+                double x = i * fluid -> h;
+                double y = j * fluid -> h + h2;
                 double u = fluid -> u[index];
                 double v = n_fluid_avgV( fluid , i , j );
                 //double v = n_fluid_sampleField( fluid , x , y , N_FLUID_V_FIELD );
-                x = x - fluid -> dt*u;
-                y = y - fluid -> dt*v;
+                x = x - fluid -> dt * u;
+                y = y - fluid -> dt * v;
                 u = n_fluid_sampleField( fluid , x , y , N_FLUID_U_FIELD );
                 fluid ->newU[index] = u;
             }
             // v component
-            if (fluid ->s[index] != 0.0 && fluid ->s[index-1] != 0.0 && i < fluid ->numX - 1) {
-                double x = i + h2;
-                double y = j;
+            if( !_z( fluid , s[index] ) && !_z( fluid , s[index-1] ) && i < fluid ->numX - 1) {
+                double x = i * fluid -> h + h2;
+                double y = j * fluid -> h ;
                 double u = n_fluid_avgU( fluid , i, j );
                 // double u = n_fluid_sampleField( fluid , x , y , N_FLUID_U_FIELD );
                 double v = fluid ->v[index];
@@ -267,7 +271,7 @@ int n_fluid_advectSmoke( N_FLUID *fluid )
     __n_assert( fluid , return FALSE );
 
     size_t n = fluid ->numY;
-    double h2 = 0.5 ;
+    double h2 = 0.5 * fluid -> h ;
 
     memcpy( fluid -> newM , fluid -> m , fluid -> numCells * sizeof( double ) );
 
@@ -276,12 +280,12 @@ int n_fluid_advectSmoke( N_FLUID *fluid )
         for( size_t j = 1; j < fluid -> numY - 1 ; j++ )
         {
 			size_t index = i*n + j ;
-            if( fluid -> s[ index ] != 0.0 )
+            if( !_z( fluid , s[ index ] ) )
             {
                 double u = (fluid ->u[ index ] + fluid ->u[ (i+1)*n + j ] ) * 0.5;
                 double v = (fluid ->v[ index ] + fluid ->v[ index + 1]) * 0.5;
-                double x = i + h2 - fluid -> dt*u;
-                double y = j + h2 - fluid -> dt*v;
+                double x = i * fluid -> h + h2 - fluid -> dt*u;
+                double y = j * fluid -> h + h2 - fluid -> dt*v;
 
                 fluid ->newM[index] = n_fluid_sampleField( fluid , x , y , N_FLUID_S_FIELD );
             }
@@ -358,11 +362,18 @@ int n_fluid_apply_obstacle_list( N_FLUID *fluid )
 }
 
 
-ALLEGRO_COLOR n_fluid_getSciColor( double val , double minVal , double maxVal )
+ALLEGRO_COLOR n_fluid_getSciColor( N_FLUID *fluid , double val , double minVal , double maxVal )
 {
     val = MIN( MAX( val , minVal ) , maxVal - 0.0001 );
     double d = maxVal - minVal;
-    val = d == 0.0 ? 0.5 : (val - minVal) / d;
+    if( _zd( fluid , d ) )
+    {
+        val = 0.5 ;
+    }
+    else
+    {
+        val = (val - minVal) / d ;
+    }
     double m = 0.25;
     size_t num = floor( val / m );
     double s = (val - num * m) / m;
@@ -411,13 +422,13 @@ int n_fluid_draw( N_FLUID *fluid )
 
             if( fluid -> showPaint )
             {
-                color = n_fluid_getSciColor( s, 0.0, 1.0 );
+                color = n_fluid_getSciColor( fluid , s , 0.0 , 1.0 );
             }
             else if( fluid -> showPressure) 
             {
                 float color_vec_f[ 3 ] = { 0.0 , 0.0 , 0.0 };
                 double p = fluid -> p[i*n + j];
-                color = n_fluid_getSciColor( p , minP , maxP );
+                color = n_fluid_getSciColor( fluid , p , minP , maxP );
                 if( fluid -> showSmoke )
                 {
                     al_unmap_rgb_f( color , color_vec_f , color_vec_f + 1 , color_vec_f + 2 ); 

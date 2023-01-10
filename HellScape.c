@@ -292,8 +292,13 @@ int main( int argc, char *argv[] )
     for (size_t j = minJ; j < maxJ; j++)
         fluid_sim -> m[j] = 0.0;
 
+
     bool do_draw = 1 , do_logic = 1 ;
     int mx = WIDTH/3 , my = HEIGHT/2 , mouse_button = 0 , mouse_b1 = 0 , mouse_b2 = 0 ;
+
+    n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) - 20.0 , 0.0 , 0.0 , fluid_factor/2 , 1 );
+    n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) - 15 , my / fluid_factor , 0.0 , 0.0 , fluid_factor/2 + fluid_factor/3 , 0 );
+    n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) + 20.0 , 0.0 , 0.0 , fluid_factor/2 , 0 );
 
     al_flush_event_queue( event_queue );
     al_set_mouse_xy( display , WIDTH/3 , HEIGHT/2 );
@@ -524,15 +529,17 @@ int main( int argc, char *argv[] )
             double vx = 0.0 , vy = 0.0 ;
             if( old_mx != mx || old_my != my )
             {
-
-                vx = (old_mx - mx ) / logictime ;
-                vy = (old_my - my ) / logictime ;
+                if( old_mx != -1 && old_my != -1 )
+                {
+                    vx = (old_mx - mx ) / logictime ;
+                    vy = (old_my - my ) / logictime ;
+                }
                 old_mx = mx ; 
                 old_my = my ;
+                n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) - 20.0 , vx , vy , fluid_factor/2 , 1 );
+                n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) - 15 , my / fluid_factor , vx , vy , fluid_factor/2 + fluid_factor/3 , 0 );
+                n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) + 20.0 , vx , vy , fluid_factor/2 , 0 );
             }
-            n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) - 20.0 , vx , vy , fluid_factor/2 , 1 );
-            n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) - 15 , my / fluid_factor , vx , vy , fluid_factor/2 + fluid_factor/3 , 0 );
-            n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) + 20.0 , vx , vy , fluid_factor/2 , 0 );
 
             double pipeH = fluid_sim -> fluid_production_percentage * fluid_sim -> numY;
             size_t minJ = floor( 0.5 * fluid_sim -> numY - 0.5 * pipeH );

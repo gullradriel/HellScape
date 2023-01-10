@@ -20,6 +20,14 @@
 extern "C" {
 #endif
 
+#ifndef _z
+#define _z( __fluid , __componant ) ( (__fluid->__componant) > (__fluid->negative_float_tolerance) && (__fluid->__componant) < (__fluid->positive_float_tolerance) )
+#endif
+
+#ifndef _zd
+#define _zd( __fluid , __value ) ( (__value) > (__fluid->negative_float_tolerance) && (__value) < (__fluid->positive_float_tolerance) )
+#endif
+
     typedef struct N_FLUID
     {
         size_t numX ;
@@ -29,15 +37,19 @@ extern "C" {
         size_t numIters ;
         double density ;
         double dt ;
+        double h ;
         double gravity ;
         double overRelaxation ;
         bool showSmoke ;
         bool showPaint ;
         bool showPressure ;
-		
-		double fluid_production_percentage ;
+
+        double negative_float_tolerance ;
+        double positive_float_tolerance ;
+
+        double fluid_production_percentage ;
         double cScale ;
-				
+
         double *u ;
         double *newU ;
 
@@ -75,7 +87,7 @@ extern "C" {
 
     int n_fluid_apply_obstacle_list( N_FLUID *fluid );
 
-    ALLEGRO_COLOR n_fluid_getSciColor( double val , double minVal , double maxVal );
+    ALLEGRO_COLOR n_fluid_getSciColor( N_FLUID *fluid , double val , double minVal , double maxVal );
 
     int n_fluid_draw( N_FLUID *fluid );
 
