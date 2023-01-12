@@ -28,6 +28,21 @@ extern "C" {
 #define _zd( __fluid , __value ) ( (__value) > (__fluid->negative_float_tolerance) && (__value) < (__fluid->positive_float_tolerance) )
 #endif
 
+
+    typedef struct N_FLUID_THREAD_PARAMS
+    {
+        /*! pointer to data which will be used in the proc */
+        void *ptr ;
+        /*! x start point */
+        size_t x_start ;
+        /*! x end point */
+        size_t x_end ;
+        /*! y start point */
+        size_t y_start ;
+        /*! y end point */
+        size_t y_end ;
+    } N_FLUID_THREAD_PARAMS ;
+
     typedef struct N_FLUID
     {
         size_t numX ;
@@ -40,6 +55,7 @@ extern "C" {
         double h ;
         double gravity ;
         double overRelaxation ;
+        double cp ;
         bool showSmoke ;
         bool showPaint ;
         bool showPressure ;
@@ -62,6 +78,15 @@ extern "C" {
         double *m ;
         double *newM ;
 
+        /*! preprocessed list of threaded procs parameters, for n_fluid_integrate  */
+        LIST *integrate_chunk_list ;
+        /*! preprocessed list of threaded procs parameters, for n_fluid_solveIncompressibility  */
+        LIST *solveImcompressibility_chunk_list ;
+        /*! preprocessed list of threaded procs parameters, for n_fluid_advectVel */
+        LIST *advectVel_chunk_list ;
+        /*! preprocessed list of threaded procs parameters, for n_fluid_advectSmoke  */
+        LIST *advectSmoke_chunk_list ;
+
     } N_FLUID ;
 
 
@@ -80,15 +105,11 @@ extern "C" {
     int n_fluid_advectSmoke( N_FLUID *fluid );
 
     int n_fluid_simulate( N_FLUID *fluid );
-
-    int n_fluid_set_params( N_FLUID *fluid , double gravity , double dt , size_t numIters , bool overRelaxation );
+    int n_fluid_simulate_threaded( N_FLUID *fluid , THREAD_POOL *thread_pool );
 
     int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r , bool reset );
 
-    int n_fluid_apply_obstacle_list( N_FLUID *fluid );
-
     ALLEGRO_COLOR n_fluid_getSciColor( N_FLUID *fluid , double val , double minVal , double maxVal );
-
     int n_fluid_draw( N_FLUID *fluid );
 
 #ifdef __cplusplus
