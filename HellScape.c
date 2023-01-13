@@ -254,12 +254,15 @@ int main( int argc, char *argv[] )
     };
     int key[ 19 ] = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
 
-    if( !( sample_data[ 0 ]  = al_load_sample( bgmusic ) ) )
+    if( bgmusic )
     {
-        n_log( LOG_ERR , "Could not load %s" , bgmusic );
-        exit( 1 );
+        if( !( sample_data[ 0 ]  = al_load_sample( bgmusic ) ) )
+        {
+            n_log( LOG_ERR , "Could not load %s" , bgmusic );
+            exit( 1 );
+        }
+        al_play_sample(sample_data[ 0 ] , 1 , 0 , 1 , ALLEGRO_PLAYMODE_LOOP , NULL );
     }
-    al_play_sample(sample_data[ 0 ] , 1 , 0 , 1 , ALLEGRO_PLAYMODE_LOOP , NULL );
 
     /* set fluid */
     Malloc( fluid_sim , N_FLUID , 1 );
