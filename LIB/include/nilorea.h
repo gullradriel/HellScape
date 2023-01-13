@@ -34,6 +34,10 @@ extern "C" {
 #include <nilorea/n_user.h>
 #include <nilorea/n_zlib.h>
 
+#ifdef HAVE_KAFKA
+#include <nilorea/n_kafka.h>
+#endif
+
 #ifdef HAVE_ALLEGRO
 #include <nilorea/n_gfx.h>
 #include <nilorea/n_anim.h>

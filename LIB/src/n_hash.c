@@ -10,6 +10,7 @@
 #include "nilorea/n_hash.h"
 
 #include <pthread.h>
+#include <string.h>
 #include <strings.h>
 
 #ifdef __windows__
