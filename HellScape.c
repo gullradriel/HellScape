@@ -235,9 +235,7 @@ int main( int argc, char *argv[] )
     ALLEGRO_FONT *font = al_load_font( "DATA/2Dumb.ttf", 18, 0 );
 
     DONE = 0 ;
-    double fps = 60.0 ;
     fps_timer = al_create_timer( 1.0 / drawFPS );
-    double logictime = fps * 2.0 ;
     logic_timer = al_create_timer( 1.0 / logicFPS );
 
     al_register_event_source(event_queue, al_get_display_event_source(display));
@@ -543,8 +541,8 @@ int main( int argc, char *argv[] )
             {
                 if( old_mx != -1 && old_my != -1 )
                 {
-                    vx = (old_mx - mx ) / logictime ;
-                    vy = (old_my - my ) / logictime ;
+                    vx = (old_mx - mx ) / logicFPS ;
+                    vy = (old_my - my ) / logicFPS ;
                 }
                 old_mx = mx ; 
                 old_my = my ;
