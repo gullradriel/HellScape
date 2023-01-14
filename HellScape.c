@@ -2,7 +2,7 @@
  *
  *  HellScape Main File
  *
- *\author Castagnier Mickaël
+ *\author Castagnier MickaÃ«l
  *
  *\version 1.0
  *
