@@ -567,6 +567,7 @@ int main( int argc, char *argv[] )
         if( do_draw == 1 )
         {
             al_set_target_bitmap( scrbuf );
+            al_lock_bitmap(scrbuf, al_get_bitmap_format(scrbuf), ALLEGRO_LOCK_WRITEONLY);
 
             n_fluid_draw( fluid_sim );
             al_draw_circle( mx , my - 20 * fluid_factor , fluid_factor * fluid_factor / 2  , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
@@ -577,14 +578,17 @@ int main( int argc, char *argv[] )
             nstrprintf( textout , "[F1/F2]->showSmoke:%d [F3/F4]->showPressure:%d [F5/F6]showPaint: %d" , fluid_sim -> showSmoke , fluid_sim -> showPressure , fluid_sim -> showPaint );
             al_draw_text( font, al_map_rgb( 0 , 0 , 255 ), WIDTH / 2 , 10 , ALLEGRO_ALIGN_CENTRE , _nstr( textout ) );
 
-            al_acknowledge_resize( display );
+            al_unlock_bitmap(scrbuf);
+
             int w = al_get_display_width(  display );
             int h = al_get_display_height( display );
-            al_set_target_bitmap( al_get_backbuffer( display ) );
 
+            al_set_target_backbuffer(display);
+            al_lock_bitmap(al_get_backbuffer(display), al_get_bitmap_format(al_get_backbuffer(display)), ALLEGRO_LOCK_WRITEONLY);
             al_draw_bitmap( scrbuf, w/2 - al_get_bitmap_width( scrbuf ) /2, h/2 - al_get_bitmap_height( scrbuf ) / 2, 0 );
-
+            al_unlock_bitmap(al_get_backbuffer(display));
             al_flip_display();
+
             do_draw = 0 ;
         }
 
