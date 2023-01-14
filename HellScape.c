@@ -215,6 +215,7 @@ int main( int argc, char *argv[] )
     }
 
 
+    al_set_new_display_option( ALLEGRO_VSYNC , 1 , ALLEGRO_SUGGEST );
     if( fullscreen )
     {
         al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_FULLSCREEN_WINDOW );
@@ -250,6 +251,7 @@ int main( int argc, char *argv[] )
     ALLEGRO_BITMAP *scrbuf = al_create_bitmap( WIDTH, HEIGHT );
 
     al_hide_mouse_cursor(display);
+
 
     enum APP_KEYS
     {
