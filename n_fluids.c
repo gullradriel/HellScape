@@ -70,11 +70,11 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     fluid -> showSmoke = 1 ;
     fluid -> showPressure = 0 ;
     fluid -> showPaint = 0 ;
-	fluid -> fluid_production_percentage = 0.1 ;
-	fluid -> cScale = 16.0 ;
+    fluid -> fluid_production_percentage = 0.1 ;
+    fluid -> cScale = 16.0 ;
     // double precision. Taking 'value', if( fabs( value ) < float_tolerance )  value is considered as zero
-	fluid -> negative_float_tolerance = -0.0001 ;
-	fluid -> positive_float_tolerance =  0.0001 ;
+    fluid -> negative_float_tolerance = -0.0001 ;
+    fluid -> positive_float_tolerance =  0.0001 ;
 
     double d_val = 1.0 ;
     n_memset( fluid -> m , &d_val , sizeof( d_val ) , fluid -> numCells );
@@ -85,54 +85,76 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     fluid -> advectVel_chunk_list = new_generic_list( 0 );
     fluid -> advectSmoke_chunk_list = new_generic_list( 0 );
 
-    // integrate
-    for( size_t i = 1 ; i < fluid -> numX ; i++ )
+    int nb_cores = get_nb_cpu_cores();
+    if( nb_cores == -1 )
     {
-        N_FLUID_THREAD_PARAMS *params = NULL ;
+        nb_cores = 1 ;
+    }
+    size_t steps = fluid -> numX / nb_cores ;
+
+    N_FLUID_THREAD_PARAMS *params = NULL ;
+    // integrate
+    for( size_t i = 1 ; i < fluid -> numX ; i +=steps )
+    {
         Malloc( params , N_FLUID_THREAD_PARAMS , 1 );
         params -> ptr = fluid ;
         params -> x_start  = i ;
-        params -> x_end    = i ;
+        params -> x_end    = i+steps ;
         params -> y_start  = 1 ;
         params -> y_end    = fluid -> numY - 1 ;
         list_push( fluid -> integrate_chunk_list , params , &free );
     }
+    // set the last batch at the end of the range
+    params = (N_FLUID_THREAD_PARAMS *)fluid -> integrate_chunk_list -> end -> ptr ;
+    params -> x_end = fluid -> numX ;
+
     // solveIncompressibility
-    for( size_t i = 1 ; i < fluid -> numX - 1 ; i++ ) 
+    for( size_t i = 1 ; i < fluid -> numX ; i +=steps )
     {
-        N_FLUID_THREAD_PARAMS *params = NULL ;
         Malloc( params , N_FLUID_THREAD_PARAMS , 1 );
         params -> ptr = fluid ;
         params -> x_start  = i ;
-        params -> x_end    = i ;
+        params -> x_end    = i+steps ;
         params -> y_start  = 1 ;
         params -> y_end    = fluid -> numY - 1 ;
         list_push( fluid -> solveImcompressibility_chunk_list , params , &free );
     }
+    // set the last batch at the end of the range
+    params = (N_FLUID_THREAD_PARAMS *)fluid -> solveImcompressibility_chunk_list -> end -> ptr ;
+    params -> x_end = fluid -> numX ;
+
     // advectVel
-    for( size_t i = 1; i < fluid -> numX ; i++ )
+    for( size_t i = 1 ; i < fluid -> numX ; i +=steps )
     {
-        N_FLUID_THREAD_PARAMS *params = NULL ;
+        params = NULL ;
         Malloc( params , N_FLUID_THREAD_PARAMS , 1 );
         params -> ptr = fluid ;
         params -> x_start  = i ;
-        params -> x_end    = i ;
+        params -> x_end    = i+steps ;
         params -> y_start  = 1 ;
         params -> y_end    = fluid -> numY ;
         list_push( fluid -> advectVel_chunk_list , params , &free );
     }
+    // set the last batch at the end of the range
+    params = (N_FLUID_THREAD_PARAMS *)fluid -> advectVel_chunk_list -> end -> ptr ;
+    params -> x_end = fluid -> numX ;
+
+
     // advectSmoke
-    for( size_t i = 1; i < fluid -> numX -1 ; i++ )
+    for( size_t i = 1 ; i < fluid -> numX -1 ; i +=steps )
     {
-        N_FLUID_THREAD_PARAMS *params = NULL ;
+        params = NULL ;
         Malloc( params , N_FLUID_THREAD_PARAMS , 1 );
         params -> ptr = fluid ;
         params -> x_start  = i ;
-        params -> x_end    = i ;
+        params -> x_end    = i+steps ;
         params -> y_start  = 1 ;
-        params -> y_end    = fluid -> numY -1 ;
+        params -> y_end    = fluid -> numY - 1;
         list_push( fluid -> advectSmoke_chunk_list , params , &free );
     }
+    // set the last batch at the end of the range
+    params = (N_FLUID_THREAD_PARAMS *)fluid -> advectSmoke_chunk_list -> end -> ptr ;
+    params -> x_end = fluid -> numX -1 ;
 
     return fluid ;
 } /* new_n_fluid */
@@ -177,7 +199,7 @@ void *n_fluid_solveIncompressibility_proc( void *ptr )
 {
     N_FLUID_THREAD_PARAMS *params = (N_FLUID_THREAD_PARAMS *)ptr ;
     N_FLUID *fluid = (N_FLUID *)params -> ptr ;
-    
+
     double cp = ( fluid -> density * fluid -> h ) / fluid -> dt ;
 
     size_t n = fluid -> numY;
@@ -186,23 +208,23 @@ void *n_fluid_solveIncompressibility_proc( void *ptr )
         for( size_t j = params -> y_start ; j < params -> y_end ; j++ )
         {
             if( _z( fluid , s[ i*n + j ] ) )
-                    continue;
+                continue;
 
-                double sx0 = fluid ->s[ (i - 1)*n + j ];
-                double sx1 = fluid ->s[ (i + 1)*n + j ];
-                double sy0 = fluid ->s[ i*n + j - 1 ];
-                double sy1 = fluid ->s[ i*n + j + 1 ];
-                double s = sx0 + sx1 + sy0 + sy1;
-                if( _zd( fluid , s ) )
-                    continue;
+            double sx0 = fluid ->s[ (i - 1)*n + j ];
+            double sx1 = fluid ->s[ (i + 1)*n + j ];
+            double sy0 = fluid ->s[ i*n + j - 1 ];
+            double sy1 = fluid ->s[ i*n + j + 1 ];
+            double s = sx0 + sx1 + sy0 + sy1;
+            if( _zd( fluid , s ) )
+                continue;
 
-                double div = fluid ->u[(i+1)*n + j] - fluid ->u[i*n + j] + fluid ->v[i*n + j+1] - fluid ->v[i*n + j];
-                double p = ( -div * fluid -> overRelaxation ) / s ;
-                fluid ->p[i*n + j] += cp * p;
-                fluid ->u[i*n + j] -= sx0 * p;
-                fluid ->u[(i+1)*n + j] += sx1 * p;
-                fluid ->v[i*n + j] -= sy0 * p;
-                fluid ->v[i*n + j+1] += sy1 * p;
+            double div = fluid ->u[(i+1)*n + j] - fluid ->u[i*n + j] + fluid ->v[i*n + j+1] - fluid ->v[i*n + j];
+            double p = ( -div * fluid -> overRelaxation ) / s ;
+            fluid ->p[i*n + j] += cp * p;
+            fluid ->u[i*n + j] -= sx0 * p;
+            fluid ->u[(i+1)*n + j] += sx1 * p;
+            fluid ->v[i*n + j] -= sy0 * p;
+            fluid ->v[i*n + j+1] += sy1 * p;
         }	 
     }
     return NULL ;
@@ -377,7 +399,7 @@ int n_fluid_advectVel( N_FLUID *fluid )
     {
         for( size_t j = 1; j < fluid -> numY ; j++ )
         {
-			size_t index = i*n + j ;
+            size_t index = i*n + j ;
             // u component
             if( !_z( fluid , s[index] ) && !_z( fluid , s[ (i-1)*n + j ] ) && j < fluid -> numY - 1)
             {
@@ -405,14 +427,14 @@ int n_fluid_advectVel( N_FLUID *fluid )
             }
         }	 
     }
-	double *ptr = fluid -> u ;
-	fluid -> u = fluid -> newU ;
-	fluid -> newU = ptr ;
-	
-	ptr = fluid -> v ;
-	fluid -> v = fluid -> newV ;
-	fluid -> newV = ptr ;
-	
+    double *ptr = fluid -> u ;
+    fluid -> u = fluid -> newU ;
+    fluid -> newU = ptr ;
+
+    ptr = fluid -> v ;
+    fluid -> v = fluid -> newV ;
+    fluid -> newV = ptr ;
+
     return TRUE ;
 }
 
@@ -423,7 +445,7 @@ void *n_fluid_advectSmoke_proc( void *ptr )
 
     size_t n = fluid ->numY;
     double h2 = 0.5 * fluid -> h ;
-    for( size_t i = params -> x_start ; i <  params -> x_end ; i++ )
+    for( size_t i = params -> x_start ; i < params -> x_end ; i++ )
     {
         for( size_t j = params -> y_start ; j < params -> y_end ; j++ )
         {
@@ -455,7 +477,7 @@ int n_fluid_advectSmoke( N_FLUID *fluid )
     {
         for( size_t j = 1; j < fluid -> numY - 1 ; j++ )
         {
-			size_t index = i*n + j ;
+            size_t index = i*n + j ;
             if( !_z( fluid , s[ index ] ) )
             {
                 double u = (fluid ->u[ index ] + fluid ->u[ (i+1)*n + j ] ) * 0.5;
@@ -468,10 +490,10 @@ int n_fluid_advectSmoke( N_FLUID *fluid )
         }	 
     }
     double *ptr = fluid -> m ;
-	fluid -> m = fluid -> newM ;
-	fluid -> newM = ptr ;
-	
-	return TRUE ;
+    fluid -> m = fluid -> newM ;
+    fluid -> newM = ptr ;
+
+    return TRUE ;
 }
 
 int n_fluid_simulate( N_FLUID *fluid )
@@ -490,25 +512,69 @@ int n_fluid_simulate_threaded( N_FLUID *fluid , THREAD_POOL *thread_pool )
 {
     __n_assert( fluid , return FALSE );
 
-    // integrate
+    //n_fluid_integrate( fluid );
     list_foreach( node , fluid -> integrate_chunk_list )
     {
-        add_threaded_process( thread_pool, &n_fluid_integrate_proc, (void *)node -> ptr , DIRECT_PROC);
+        add_threaded_process( thread_pool, &n_fluid_integrate_proc, (void *)node -> ptr , SYNCED_PROC);
     }
+    start_threaded_pool( thread_pool );
+    wait_for_synced_threaded_pool( thread_pool );
     refresh_thread_pool( thread_pool );
-    wait_for_threaded_pool( thread_pool, 5000 );
-    n_fluid_integrate( fluid );
-    
+
+    // set pressure to 0 
     memset( fluid -> p , 0 , fluid -> numCells * sizeof( double ) );
 
-    n_fluid_solveIncompressibility( fluid );
-    
+    //n_fluid_solveIncompressibility( fluid );
+    for( size_t iter = 0 ; iter < fluid -> numIters ; iter++ )
+    {
+        list_foreach( node , fluid -> solveImcompressibility_chunk_list )
+        {
+            add_threaded_process( thread_pool, &n_fluid_solveIncompressibility_proc, (void *)node -> ptr , SYNCED_PROC);
+        }
+        start_threaded_pool( thread_pool );
+        wait_for_synced_threaded_pool( thread_pool );
+        refresh_thread_pool( thread_pool );
+    }
+
+    // extrapolate
     n_fluid_extrapolate( fluid );
-    
-    n_fluid_advectVel( fluid );
-    
-    n_fluid_advectSmoke( fluid );
-    
+
+    //n_fluid_advectVel( fluid );
+    memcpy( fluid -> newU , fluid -> u , fluid -> numCells * sizeof( double ) );
+    memcpy( fluid -> newV , fluid -> v , fluid -> numCells * sizeof( double ) );
+
+    list_foreach( node , fluid -> advectVel_chunk_list )
+    {
+        add_threaded_process( thread_pool, &n_fluid_advectVel_proc, (void *)node -> ptr , SYNCED_PROC);
+    }
+    start_threaded_pool( thread_pool );
+    wait_for_synced_threaded_pool( thread_pool );
+    refresh_thread_pool( thread_pool );
+
+    double *ptr = fluid -> u ;
+    fluid -> u = fluid -> newU ;
+    fluid -> newU = ptr ;
+
+    ptr = fluid -> v ;
+    fluid -> v = fluid -> newV ;
+    fluid -> newV = ptr ;
+
+
+    //n_fluid_advectSmoke( fluid );
+    memcpy( fluid -> newM , fluid -> m , fluid -> numCells * sizeof( double ) );
+    list_foreach( node , fluid -> advectSmoke_chunk_list )
+    {
+        add_threaded_process( thread_pool, &n_fluid_advectSmoke_proc, (void *)node -> ptr , SYNCED_PROC);
+    }
+    start_threaded_pool( thread_pool );
+    wait_for_synced_threaded_pool( thread_pool );
+    refresh_thread_pool( thread_pool );
+
+    ptr = fluid -> m ;
+    fluid -> m = fluid -> newM ;
+    fluid -> newM = ptr ; 
+
+
     return TRUE ;
 }
 
