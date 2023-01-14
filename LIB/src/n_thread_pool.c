@@ -11,7 +11,9 @@
 #include "nilorea/n_time.h"
 
 #include <unistd.h>
-#include <sys/sysinfo.h>
+#ifdef __linux__
+    #include <sys/sysinfo.h>
+#endif
 #include <pthread.h>
 #include <string.h>
 #include <errno.h>
