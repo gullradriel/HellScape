@@ -5,5 +5,5 @@
 	"overRelaxation": 1.9 ,
     "fluid_production_percentage": 0.3,
 	"cScale": 8.0,
-	"threadedProcessing": 0 
+	"threadedProcessing": 1
 }
