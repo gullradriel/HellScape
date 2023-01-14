@@ -109,7 +109,7 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     params -> x_end = fluid -> numX ;
 
     // solveIncompressibility
-    for( size_t i = 1 ; i < fluid -> numX ; i +=steps )
+    for( size_t i = 1 ; i < fluid -> numX - 1 ; i +=steps )
     {
         Malloc( params , N_FLUID_THREAD_PARAMS , 1 );
         params -> ptr = fluid ;
@@ -121,12 +121,11 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     }
     // set the last batch at the end of the range
     params = (N_FLUID_THREAD_PARAMS *)fluid -> solveImcompressibility_chunk_list -> end -> ptr ;
-    params -> x_end = fluid -> numX ;
+    params -> x_end = fluid -> numX - 1 ;
 
     // advectVel
     for( size_t i = 1 ; i < fluid -> numX ; i +=steps )
     {
-        params = NULL ;
         Malloc( params , N_FLUID_THREAD_PARAMS , 1 );
         params -> ptr = fluid ;
         params -> x_start  = i ;
@@ -140,10 +139,9 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     params -> x_end = fluid -> numX ;
 
 
-    // advectSmoke
+    // adVectSmoke
     for( size_t i = 1 ; i < fluid -> numX -1 ; i +=steps )
     {
-        params = NULL ;
         Malloc( params , N_FLUID_THREAD_PARAMS , 1 );
         params -> ptr = fluid ;
         params -> x_start  = i ;
