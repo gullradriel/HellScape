@@ -11,9 +11,29 @@
 #include "nilorea/n_time.h"
 
 #include <unistd.h>
+#include <sys/sysinfo.h>
 #include <pthread.h>
 #include <string.h>
 #include <errno.h>
+
+
+
+/*!\fn int get_nb_cpu_cores()
+ *\brief get number of core of current system
+ * \return The number of cores or -1 if the system command is not supported
+ */
+int get_nb_cpu_cores()
+{
+    int nb_procs = -1 ;
+#ifdef __windows__
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    nb_procs = sysinfo.dwNumberOfProcessors;
+#else
+    nb_procs = get_nprocs();
+#endif
+    return nb_procs;
+}
 
 
 
@@ -278,6 +298,24 @@ int start_threaded_pool( THREAD_POOL *thread_pool )
     return retval ;
 } /* start_threaded_pool */
 
+
+/*\fn int wait_for_synced_threaded_pool( THREAD_POOL *thread_pool )
+ *\brief wait for all the launched process, blocking but light on the CPU as there is no polling
+ * \param thread_pool The thread pool to wait
+ * \return TRUE or FALSE
+ */
+int wait_for_synced_threaded_pool(  THREAD_POOL *thread_pool )
+{
+    __n_assert( thread_pool , return FALSE );
+    __n_assert( thread_pool -> thread_list , return FALSE );
+
+    for( int it = 0 ; it < thread_pool -> max_threads ; it ++ )
+    {
+        sem_wait( &thread_pool -> thread_list[ it ] -> th_end );
+    }
+
+    return TRUE ;
+}
 
 
 /*!\fn int wait_for_threaded_pool( THREAD_POOL *thread_pool , int delay )

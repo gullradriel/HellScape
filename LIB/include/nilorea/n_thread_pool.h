@@ -62,10 +62,11 @@ typedef struct THREAD_POOL_NODE
     /*! thread id */
     pthread_t thr ;
 
-    /*! starting semaphore */
+          /*! thread starting semaphore */
     sem_t th_start,
-          /*! ending semaphore */
+          /*! thread ending semaphore */
           th_end ;
+
     /*! mutex to prevent mutual access of node parameters */
     pthread_mutex_t lock ;
 
@@ -104,13 +105,16 @@ typedef struct THREAD_WAITING_PROC
 
 } THREAD_WAITING_PROC ;
 
-
+/* get number of core of current system */
+int get_nb_cpu_cores();
 /* allocate a new thread pool */
 THREAD_POOL *new_thread_pool( int nbmaxthr, int nb_max_waiting );
 /* add a function to run in an available thread inside a pool */
 int add_threaded_process( THREAD_POOL *thread_pool, void *(*func_ptr)(void *param), void *param, int mode );
 /* tell all the waiting threads to start their associated process */
 int start_threaded_pool( THREAD_POOL *thread_pool );
+/* wait for all the threads in the pool to terminate processing, blocking but light on the CPU as there is no polling */
+int wait_for_synced_threaded_pool(  THREAD_POOL *thread_pool );
 /* wait for all running threads to finish */
 int wait_for_threaded_pool( THREAD_POOL *thread_pool, int delay );
 /* destroy all running threads */

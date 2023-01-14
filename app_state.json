@@ -1,6 +1,6 @@
 {
-	"width":	    1400 ,
-	"height":	     600 ,
-	"fullscreen":	0 ,
+	"width":	    1200 ,
+	"height":	    800 ,
+	"fullscreen":	1 ,
     "bg-music":     "DATA/Musics/background_music.ogg"
 }

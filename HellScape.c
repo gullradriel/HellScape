@@ -2,7 +2,7 @@
  *
  *  HellScape Main File
  *
- *\author Castagnier Mickaël
+ *\author Castagnier MickaÃ«l
  *
  *\version 1.0
  *
@@ -48,6 +48,8 @@ size_t WIDTH  = 1280 ,
        HEIGHT = 800 ;
 bool fullscreen = 0 ;
 char *bgmusic = NULL ;
+
+THREAD_POOL *thread_pool = NULL ;
 
 int main( int argc, char *argv[] )
 {
@@ -263,6 +265,8 @@ int main( int argc, char *argv[] )
         }
         al_play_sample(sample_data[ 0 ] , 1 , 0 , 1 , ALLEGRO_PLAYMODE_LOOP , NULL );
     }
+
+    thread_pool = new_thread_pool( get_nb_cpu_cores() , 0 );
 
     /* set fluid */
     Malloc( fluid_sim , N_FLUID , 1 );
@@ -550,7 +554,7 @@ int main( int argc, char *argv[] )
             for (size_t j = minJ; j < maxJ; j++)
                 fluid_sim -> m[j] = 0.0;
 
-            n_fluid_simulate( fluid_sim );
+            n_fluid_simulate_threaded( fluid_sim , thread_pool );
             do_logic = 0 ;
         }
         if( do_draw == 1 )
