@@ -40,6 +40,9 @@ int		DONE = 0,                    /* Flag to check if we are always running */
         getoptret = 0,				  /* launch parameter check */
         log_level = LOG_ERR ;			 /* default LOG_LEVEL */
 
+double drawFPS = 60.0 ;
+double logicFPS = 120.0 ;
+
 ALLEGRO_TIMER *fps_timer = NULL ;
 ALLEGRO_TIMER *logic_timer = NULL ;
 
@@ -62,7 +65,7 @@ int main( int argc, char *argv[] )
      */
     set_log_level( LOG_NOTICE );
 
-    if( load_app_state( "app_state.json" , &WIDTH , &HEIGHT , &fullscreen , &bgmusic  ) != TRUE )
+    if( load_app_state( "app_state.json" , &WIDTH , &HEIGHT , &fullscreen , &bgmusic , &drawFPS , &logicFPS ) != TRUE )
     {
         n_log( LOG_ERR , "couldn't load app_state.json !");
         exit( 1 );
@@ -233,9 +236,9 @@ int main( int argc, char *argv[] )
 
     DONE = 0 ;
     double fps = 60.0 ;
-    fps_timer = al_create_timer( 1.0 / fps );
+    fps_timer = al_create_timer( 1.0 / drawFPS );
     double logictime = fps * 2.0 ;
-    logic_timer = al_create_timer( 1.0 / logictime );
+    logic_timer = al_create_timer( 1.0 / logicFPS );
 
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_start_timer( fps_timer );
@@ -269,12 +272,14 @@ int main( int argc, char *argv[] )
     thread_pool = new_thread_pool( get_nb_cpu_cores() , 0 );
 
     /* set fluid */
+	int threadedProcessing = 0 ;
     Malloc( fluid_sim , N_FLUID , 1 );
-    load_fluid_state( fluid_sim , "fluid_state.json" );
+    load_fluid_state( fluid_sim , &threadedProcessing , "fluid_state.json" );
     double fluid_factor = fluid_sim -> cScale ;
     Free( fluid_sim );
     fluid_sim = new_n_fluid( 10000.0 , 0.0 , 40 , 0.5 , 1.9 , WIDTH / fluid_factor , HEIGHT / fluid_factor );
-    load_fluid_state( fluid_sim , "fluid_state.json" );
+    load_fluid_state( fluid_sim , &threadedProcessing , "fluid_state.json" );
+	fluid_sim -> dt = 1.0 / logicFPS ;
 
     size_t n = fluid_sim -> numY;
     double inVel = 2.0;
@@ -554,7 +559,11 @@ int main( int argc, char *argv[] )
             for (size_t j = minJ; j < maxJ; j++)
                 fluid_sim -> m[j] = 0.0;
 
-            n_fluid_simulate_threaded( fluid_sim , thread_pool );
+            if( threadedProcessing == 1 )
+				n_fluid_simulate_threaded( fluid_sim , thread_pool );
+			else
+				n_fluid_simulate( fluid_sim );
+
             do_logic = 0 ;
         }
         if( do_draw == 1 )

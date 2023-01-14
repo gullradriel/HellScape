@@ -15,7 +15,7 @@
 #include "n_fluids.h"
 
 
-int load_app_state( char *state_filename , size_t *WIDTH , size_t *HEIGHT , bool *fullscreen , char **bgmusic  )
+int load_app_state( char *state_filename , size_t *WIDTH , size_t *HEIGHT , bool *fullscreen , char **bgmusic , double *drawFPS , double *logicFPS )
 {
 	__n_assert( state_filename , return FALSE );
 
@@ -48,7 +48,8 @@ int load_app_state( char *state_filename , size_t *WIDTH , size_t *HEIGHT , bool
 	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "height" );     if( cJSON_IsNumber( value ) ){ (*HEIGHT) = value -> valueint ; } else { n_log( LOG_ERR , "height is not a number"); }
 	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "fullscreen" ); if( cJSON_IsNumber( value ) ){ (*fullscreen) = value -> valueint ; } else { n_log( LOG_ERR , "fullscreen is not a number"); }
 	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "bg-music" );   if( cJSON_IsString( value ) ){ (*bgmusic) = strdup( value -> valuestring ); } else { n_log( LOG_ERR , "bg-music is not a string"); }
-
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "drawFPS" ); if( cJSON_IsNumber( value ) ){ (*drawFPS) = value -> valuedouble ; } else { n_log( LOG_ERR , "drawFPS is not a number"); }
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "logicFPS" ); if( cJSON_IsNumber( value ) ){ (*logicFPS) = value -> valuedouble ; } else { n_log( LOG_ERR , "logicFPS is not a number"); }
 
 	cJSON_Delete(monitor_json);
 	free_nstr( &data );
@@ -56,7 +57,7 @@ int load_app_state( char *state_filename , size_t *WIDTH , size_t *HEIGHT , bool
 	return TRUE ;
 }
 
-int load_fluid_state( N_FLUID *fluid , char *state_filename )
+int load_fluid_state( N_FLUID *fluid , int *threaded , char *state_filename )
 {
 	__n_assert( state_filename , return FALSE );
 	__n_assert( fluid , return FALSE );
@@ -86,13 +87,13 @@ int load_fluid_state( N_FLUID *fluid , char *state_filename )
 	}
 
 	cJSON *value = NULL ;
-	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "numIters" );       if( cJSON_IsNumber( value ) ){ fluid -> numIters = value -> valueint ; } 
-	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "density" );        if( cJSON_IsNumber( value ) ){ fluid -> density  = value -> valuedouble ; } 
-	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "dt" );             if( cJSON_IsNumber( value ) ){ fluid -> dt       = value -> valuedouble ; } 
-	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "gravity" );        if( cJSON_IsNumber( value ) ){ fluid -> gravity  = value -> valuedouble ; } 
-	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "overRelaxation" ); if( cJSON_IsNumber( value ) ){ fluid -> overRelaxation = value -> valuedouble ; } 
-	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "fluid_production_percentage" ); if( cJSON_IsNumber( value ) ){ fluid -> fluid_production_percentage = value -> valuedouble ; } 
-	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "cScale" ); if( cJSON_IsNumber( value ) ){ fluid -> cScale = value -> valuedouble ; } 
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "numIters" );       if( cJSON_IsNumber( value ) ){ fluid -> numIters = value -> valueint ; } else { n_log( LOG_ERR , "numIters is not a number"); }
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "density" );        if( cJSON_IsNumber( value ) ){ fluid -> density  = value -> valuedouble ; } else { n_log( LOG_ERR , "density is not a number"); }
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "gravity" );        if( cJSON_IsNumber( value ) ){ fluid -> gravity  = value -> valuedouble ; } else { n_log( LOG_ERR , "gravity is not a number"); } 
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "overRelaxation" ); if( cJSON_IsNumber( value ) ){ fluid -> overRelaxation = value -> valuedouble ; } else { n_log( LOG_ERR , "overRelaxation is not a number"); } 
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "fluid_production_percentage" ); if( cJSON_IsNumber( value ) ){ fluid -> fluid_production_percentage = value -> valuedouble ; }else { n_log( LOG_ERR , "fluid_production_percentage is not a number"); } 
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "cScale" ); if( cJSON_IsNumber( value ) ){ fluid -> cScale = value -> valuedouble ; } else { n_log( LOG_ERR , "cScale is not a number"); }
+	value = cJSON_GetObjectItemCaseSensitive( monitor_json, "threadedProcessing" ); if( cJSON_IsNumber( value ) ){ (*threaded) = value -> valueint ; } else { n_log( LOG_ERR , "threadedProcessing is not a number"); } 
 
 	cJSON_Delete(monitor_json);
 	free_nstr( &data );
