@@ -1,8 +1,8 @@
 {
-	"width":	    1280 ,
-	"height":	    600 ,
-	"fullscreen":	    0 ,
-	"-bg-music":     "DATA/Musics/background_music.ogg",
+	"width": 1280 ,
+	"height": 600 ,
+	"fullscreen": 0 ,
+	"-bg-music": "DATA/Musics/background_music.ogg",
 	"drawFPS": 60.0 ,
-	"logicFPS": 120.0 
+	"logicFPS": 200.0 
 }

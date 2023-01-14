@@ -1,9 +1,9 @@
 {
-    "numIters":	40 ,
-	"density":	1000.0 ,
-	"gravity":	0.0 ,
-	"overRelaxation":	1.9 ,
+    "numIters": 40 ,
+	"density": 1000.0 ,
+	"gravity": 0.0 ,
+	"overRelaxation": 1.9 ,
     "fluid_production_percentage": 0.3,
 	"cScale": 8.0,
-	"threadedProcessing": 1 
+	"threadedProcessing": 0 
 }
