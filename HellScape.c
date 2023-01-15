@@ -215,7 +215,12 @@ int main( int argc, char *argv[] )
     }
 
 
-    al_set_new_display_option( ALLEGRO_VSYNC , 1 , ALLEGRO_SUGGEST );
+    al_set_new_display_option( ALLEGRO_VSYNC                 , 1 , ALLEGRO_SUGGEST );
+/*    al_set_new_display_option( ALLEGRO_SINGLE_BUFFER         , 0 , ALLEGRO_SUGGEST );
+    al_set_new_display_option( ALLEGRO_SWAP_METHOD           , 2 , ALLEGRO_SUGGEST );
+    al_set_new_display_option( ALLEGRO_CAN_DRAW_INTO_BITMAP  , 1 , ALLEGRO_SUGGEST );*/
+    
+
     if( fullscreen )
     {
         al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_FULLSCREEN_WINDOW );
@@ -224,6 +229,7 @@ int main( int argc, char *argv[] )
     {
         al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_WINDOWED );
     }
+
     display = al_create_display( WIDTH, HEIGHT );
     if( !display )
     {
@@ -569,9 +575,9 @@ int main( int argc, char *argv[] )
         if( do_draw == 1 )
         {
             al_set_target_bitmap( scrbuf );
-            al_lock_bitmap(scrbuf, al_get_bitmap_format(scrbuf), ALLEGRO_LOCK_WRITEONLY);
 
             n_fluid_draw( fluid_sim );
+
             al_draw_circle( mx , my - 20 * fluid_factor , fluid_factor * fluid_factor / 2  , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
             al_draw_circle( mx - 15 * fluid_factor , my , fluid_factor * fluid_factor / 2 + (fluid_factor*fluid_factor)/3 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
             al_draw_circle( mx , my + 20 * fluid_factor , fluid_factor *fluid_factor  / 2 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
@@ -580,15 +586,11 @@ int main( int argc, char *argv[] )
             nstrprintf( textout , "[F1/F2]->showSmoke:%d [F3/F4]->showPressure:%d [F5/F6]showPaint: %d" , fluid_sim -> showSmoke , fluid_sim -> showPressure , fluid_sim -> showPaint );
             al_draw_text( font, al_map_rgb( 0 , 0 , 255 ), WIDTH / 2 , 10 , ALLEGRO_ALIGN_CENTRE , _nstr( textout ) );
 
-            al_unlock_bitmap(scrbuf);
-
             int w = al_get_display_width(  display );
             int h = al_get_display_height( display );
 
             al_set_target_backbuffer(display);
-            al_lock_bitmap(al_get_backbuffer(display), al_get_bitmap_format(al_get_backbuffer(display)), ALLEGRO_LOCK_WRITEONLY);
             al_draw_bitmap( scrbuf, w/2 - al_get_bitmap_width( scrbuf ) /2, h/2 - al_get_bitmap_height( scrbuf ) / 2, 0 );
-            al_unlock_bitmap(al_get_backbuffer(display));
             al_flip_display();
 
             do_draw = 0 ;

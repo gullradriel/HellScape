@@ -572,7 +572,6 @@ int n_fluid_simulate_threaded( N_FLUID *fluid , THREAD_POOL *thread_pool )
     fluid -> m = fluid -> newM ;
     fluid -> newM = ptr ; 
 
-
     return TRUE ;
 }
 
