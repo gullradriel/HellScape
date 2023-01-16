@@ -73,8 +73,8 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
     fluid -> fluid_production_percentage = 0.1 ;
     fluid -> cScale = 16.0 ;
     // double precision. Taking 'value', if( fabs( value ) < float_tolerance )  value is considered as zero
-    fluid -> negative_float_tolerance = -0.0001 ;
-    fluid -> positive_float_tolerance =  0.0001 ;
+    fluid -> negative_float_tolerance = -0.00001 ;
+    fluid -> positive_float_tolerance =  0.00001 ;
 
     double d_val = 1.0 ;
     n_memset( fluid -> m , &d_val , sizeof( d_val ) , fluid -> numCells );
@@ -571,7 +571,6 @@ int n_fluid_simulate_threaded( N_FLUID *fluid , THREAD_POOL *thread_pool )
     ptr = fluid -> m ;
     fluid -> m = fluid -> newM ;
     fluid -> newM = ptr ; 
-
 
     return TRUE ;
 }

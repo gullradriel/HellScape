@@ -16,6 +16,7 @@
 #include "nilorea/n_log.h"
 #include "nilorea/n_list.h"
 #include "nilorea/n_str.h"
+#include "nilorea/n_time.h"
 #include "n_fluids.h"
 #include "states_management.h"
 
@@ -45,6 +46,8 @@ double logicFPS = 120.0 ;
 
 ALLEGRO_TIMER *fps_timer = NULL ;
 ALLEGRO_TIMER *logic_timer = NULL ;
+N_TIME logic_chrono ;
+N_TIME drawing_chrono ;
 
 N_FLUID *fluid_sim = NULL ;
 size_t WIDTH  = 1280 ,
@@ -65,9 +68,9 @@ int main( int argc, char *argv[] )
      */
     set_log_level( LOG_NOTICE );
 
-    if( load_app_state( "app_state.json" , &WIDTH , &HEIGHT , &fullscreen , &bgmusic , &drawFPS , &logicFPS ) != TRUE )
+    if( load_app_state( "app_config.json" , &WIDTH , &HEIGHT , &fullscreen , &bgmusic , &drawFPS , &logicFPS ) != TRUE )
     {
-        n_log( LOG_ERR , "couldn't load app_state.json !");
+        n_log( LOG_ERR , "couldn't load app_config.json !");
         exit( 1 );
     }
     n_log( LOG_DEBUG , "%s starting with params: %dx%d fullscreen(%d), music: %s" , argv[ 0 ] , WIDTH , HEIGHT , fullscreen , _str( bgmusic ) );
@@ -78,66 +81,6 @@ int main( int argc, char *argv[] )
     /*set_log_file( _nstr( log_file ) );*/
     free_nstr( &log_file );
 
-    /* allegro 5 + addons loading */
-    if (!al_init())
-    {
-        n_abort("Could not init Allegro.\n");
-    }
-    if( !al_init_acodec_addon() )
-    {
-        n_abort("Could not register addons.\n");
-    }
-    if (!al_install_audio())
-    {
-        n_abort("Unable to initialize audio addon\n");
-    }
-    if (!al_init_acodec_addon())
-    {
-        n_abort("Unable to initialize acoded addon\n");
-    }
-    if (!al_init_image_addon())
-    {
-        n_abort("Unable to initialize image addon\n");
-    }
-    if (!al_init_primitives_addon() )
-    {
-        n_abort("Unable to initialize primitives addon\n");
-    }
-    if( !al_init_font_addon() )
-    {
-        n_abort("Unable to initialize font addon\n");
-    }
-    if( !al_init_ttf_addon() )
-    {
-        n_abort("Unable to initialize ttf_font addon\n");
-    }
-    if( !al_install_keyboard() )
-    {
-        n_abort("Unable to initialize keyboard handler\n");
-    }
-    if( !al_install_mouse())
-    {
-        n_abort("Unable to initialize mouse handler\n");
-    }
-
-    if( !al_reserve_samples( RESERVED_SAMPLES ) ) 
-    {
-        n_abort("Could not set up voice and mixer.\n");
-    }
-
-    ALLEGRO_SAMPLE *sample_data[MAX_SAMPLE_DATA] = {NULL};
-    memset(sample_data, 0, sizeof(sample_data));
-
-
-    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-
-    event_queue = al_create_event_queue();
-    if(!event_queue)
-    {
-        fprintf(stderr, "failed to create event_queue!\n");
-        al_destroy_display(display);
-        return -1;
-    }
     char ver_str[ 128 ] = "" ;
 
     while( ( getoptret = getopt( argc, argv, "hvV:L:" ) ) != EOF )
@@ -214,8 +157,66 @@ int main( int argc, char *argv[] )
         }
     }
 
+    /* allegro 5 + addons loading */
+    if (!al_init())
+    {
+        n_abort("Could not init Allegro.\n");
+    }
+    if( !al_init_acodec_addon() )
+    {
+        n_abort("Could not register addons.\n");
+    }
+    if (!al_install_audio())
+    {
+        n_abort("Unable to initialize audio addon\n");
+    }
+    if (!al_init_acodec_addon())
+    {
+        n_abort("Unable to initialize acoded addon\n");
+    }
+    if (!al_init_image_addon())
+    {
+        n_abort("Unable to initialize image addon\n");
+    }
+    if (!al_init_primitives_addon() )
+    {
+        n_abort("Unable to initialize primitives addon\n");
+    }
+    if( !al_init_font_addon() )
+    {
+        n_abort("Unable to initialize font addon\n");
+    }
+    if( !al_init_ttf_addon() )
+    {
+        n_abort("Unable to initialize ttf_font addon\n");
+    }
+    if( !al_install_keyboard() )
+    {
+        n_abort("Unable to initialize keyboard handler\n");
+    }
+    if( !al_install_mouse())
+    {
+        n_abort("Unable to initialize mouse handler\n");
+    }
 
-    al_set_new_display_option( ALLEGRO_VSYNC , 1 , ALLEGRO_SUGGEST );
+    if( !al_reserve_samples( RESERVED_SAMPLES ) ) 
+    {
+        n_abort("Could not set up voice and mixer.\n");
+    }
+
+    ALLEGRO_SAMPLE *sample_data[MAX_SAMPLE_DATA] = {NULL};
+    memset(sample_data, 0, sizeof(sample_data));
+
+    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+
+    event_queue = al_create_event_queue();
+    if(!event_queue)
+    {
+        fprintf(stderr, "failed to create event_queue!\n");
+        al_destroy_display(display);
+        return -1;
+    }
+
     if( fullscreen )
     {
         al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_FULLSCREEN_WINDOW );
@@ -224,6 +225,7 @@ int main( int argc, char *argv[] )
     {
         al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_WINDOWED );
     }
+
     display = al_create_display( WIDTH, HEIGHT );
     if( !display )
     {
@@ -248,7 +250,7 @@ int main( int argc, char *argv[] )
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     al_register_event_source(event_queue, al_get_mouse_event_source());
 
-    ALLEGRO_BITMAP *scrbuf = al_create_bitmap( WIDTH, HEIGHT );
+    ALLEGRO_BITMAP *scrbuf = NULL ;
 
     al_hide_mouse_cursor(display);
 
@@ -272,14 +274,14 @@ int main( int argc, char *argv[] )
     thread_pool = new_thread_pool( get_nb_cpu_cores() , 0 );
 
     /* set fluid */
-	int threadedProcessing = 0 ;
+    int threadedProcessing = 0 ;
     Malloc( fluid_sim , N_FLUID , 1 );
-    load_fluid_state( fluid_sim , &threadedProcessing , "fluid_state.json" );
+    load_fluid_state( fluid_sim , &threadedProcessing , "fluid_config.json" );
     double fluid_factor = fluid_sim -> cScale ;
     Free( fluid_sim );
     fluid_sim = new_n_fluid( 10000.0 , 0.0 , 40 , 0.5 , 1.9 , WIDTH / fluid_factor , HEIGHT / fluid_factor );
-    load_fluid_state( fluid_sim , &threadedProcessing , "fluid_state.json" );
-	fluid_sim -> dt = 1.0 / logicFPS ;
+    load_fluid_state( fluid_sim , &threadedProcessing , "fluid_config.json" );
+    fluid_sim -> dt = 1.0 / logicFPS ;
 
     size_t n = fluid_sim -> numY;
     double inVel = 2.0;
@@ -314,6 +316,15 @@ int main( int argc, char *argv[] )
 
     al_flush_event_queue( event_queue );
     al_set_mouse_xy( display , WIDTH/3 , HEIGHT/2 );
+
+
+    int w = al_get_display_width(  display );
+    int h = al_get_display_height( display );
+
+    scrbuf = al_create_bitmap( WIDTH, HEIGHT );
+
+    size_t logic_duration = 0 ;
+    size_t drawing_duration = 0 ;
     do
     {
         do
@@ -537,6 +548,7 @@ int main( int argc, char *argv[] )
 
         if( do_logic == 1 )
         {
+            start_HiTimer( &logic_chrono );
             static int old_mx = -1 , old_my = -1 ;
             double vx = 0.0 , vy = 0.0 ;
             if( old_mx != mx || old_my != my )
@@ -560,36 +572,41 @@ int main( int argc, char *argv[] )
                 fluid_sim -> m[j] = 0.0;
 
             if( threadedProcessing == 1 )
-				n_fluid_simulate_threaded( fluid_sim , thread_pool );
-			else
-				n_fluid_simulate( fluid_sim );
+                n_fluid_simulate_threaded( fluid_sim , thread_pool );
+            else
+                n_fluid_simulate( fluid_sim );
 
+            logic_duration = ( logic_duration + get_usec( &logic_chrono ) ) / 2;
             do_logic = 0 ;
         }
         if( do_draw == 1 )
         {
-            al_set_target_bitmap( scrbuf );
-            al_lock_bitmap(scrbuf, al_get_bitmap_format(scrbuf), ALLEGRO_LOCK_WRITEONLY);
+            start_HiTimer( &drawing_chrono );
 
+            al_set_target_bitmap( scrbuf );
             n_fluid_draw( fluid_sim );
+
             al_draw_circle( mx , my - 20 * fluid_factor , fluid_factor * fluid_factor / 2  , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
             al_draw_circle( mx - 15 * fluid_factor , my , fluid_factor * fluid_factor / 2 + (fluid_factor*fluid_factor)/3 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
             al_draw_circle( mx , my + 20 * fluid_factor , fluid_factor *fluid_factor  / 2 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
-
+            
             static N_STR *textout = NULL ;
-            nstrprintf( textout , "[F1/F2]->showSmoke:%d [F3/F4]->showPressure:%d [F5/F6]showPaint: %d" , fluid_sim -> showSmoke , fluid_sim -> showPressure , fluid_sim -> showPaint );
-            al_draw_text( font, al_map_rgb( 0 , 0 , 255 ), WIDTH / 2 , 10 , ALLEGRO_ALIGN_CENTRE , _nstr( textout ) );
+            nstrprintf( textout , "[F1/F2]:showSmoke:%d [F3/F4]:showPressure:%d [F5/F6]:showPaint:%d" , fluid_sim -> showSmoke , fluid_sim -> showPressure , fluid_sim -> showPaint );
+            al_draw_text( font, al_map_rgb( 0 , 0 , 255 ), WIDTH , 10 , ALLEGRO_ALIGN_RIGHT , _nstr( textout ) );
 
-            al_unlock_bitmap(scrbuf);
+            nstrprintf( textout , "logic(max %ld): %ld usecs" , (size_t)(1000000/logicFPS) , logic_duration  );
+            al_draw_text( font, al_map_rgb( 0 , 0 , 255 ), 5 , 10 , ALLEGRO_ALIGN_LEFT , _nstr( textout ) );
 
-            int w = al_get_display_width(  display );
-            int h = al_get_display_height( display );
+            nstrprintf( textout , "drawing(max %ld): %ld usecs" , (size_t)(1000000/drawFPS) , drawing_duration );
+            al_draw_text( font, al_map_rgb( 0 , 0 , 255 ), 5 , 30 , ALLEGRO_ALIGN_LEFT , _nstr( textout ) );
 
-            al_set_target_backbuffer(display);
-            al_lock_bitmap(al_get_backbuffer(display), al_get_bitmap_format(al_get_backbuffer(display)), ALLEGRO_LOCK_WRITEONLY);
+            al_set_target_bitmap(al_get_backbuffer(display));
+
             al_draw_bitmap( scrbuf, w/2 - al_get_bitmap_width( scrbuf ) /2, h/2 - al_get_bitmap_height( scrbuf ) / 2, 0 );
-            al_unlock_bitmap(al_get_backbuffer(display));
+
             al_flip_display();
+
+            drawing_duration = ( drawing_duration + get_usec( &drawing_chrono ) ) / 2;
 
             do_draw = 0 ;
         }
