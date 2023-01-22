@@ -76,6 +76,7 @@ make
 Variables in json:
 
 {
+
 	"numIters":	12,       # precision of the interpolation, the lower the worst. Best range from 8 to 80
 
 	"density":	10000.0,  # density of the fluid. not really what I was expecting
