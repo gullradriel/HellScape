@@ -81,7 +81,7 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
 
     // precalculate and allocated N_PROC_PARAMS lists for threaded computing 
     fluid -> integrate_chunk_list = new_generic_list( 0 );
-    fluid -> solveImcompressibility_chunk_list = new_generic_list( 0 );
+    fluid -> solveIncompressibility_chunk_list = new_generic_list( 0 );
     fluid -> advectVel_chunk_list = new_generic_list( 0 );
     fluid -> advectSmoke_chunk_list = new_generic_list( 0 );
 
@@ -117,10 +117,10 @@ N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double
         params -> x_end    = i+steps ;
         params -> y_start  = 1 ;
         params -> y_end    = fluid -> numY - 1 ;
-        list_push( fluid -> solveImcompressibility_chunk_list , params , &free );
+        list_push( fluid -> solveIncompressibility_chunk_list , params , &free );
     }
     // set the last batch at the end of the range
-    params = (N_FLUID_THREAD_PARAMS *)fluid -> solveImcompressibility_chunk_list -> end -> ptr ;
+    params = (N_FLUID_THREAD_PARAMS *)fluid -> solveIncompressibility_chunk_list -> end -> ptr ;
     params -> x_end = fluid -> numX - 1 ;
 
     // advectVel
@@ -525,7 +525,7 @@ int n_fluid_simulate_threaded( N_FLUID *fluid , THREAD_POOL *thread_pool )
     //n_fluid_solveIncompressibility( fluid );
     for( size_t iter = 0 ; iter < fluid -> numIters ; iter++ )
     {
-        list_foreach( node , fluid -> solveImcompressibility_chunk_list )
+        list_foreach( node , fluid -> solveIncompressibility_chunk_list )
         {
             add_threaded_process( thread_pool, &n_fluid_solveIncompressibility_proc, (void *)node -> ptr , SYNCED_PROC);
         }

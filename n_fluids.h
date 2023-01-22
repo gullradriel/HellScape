@@ -83,7 +83,7 @@ extern "C" {
         /*! preprocessed list of threaded procs parameters, for n_fluid_integrate  */
         LIST *integrate_chunk_list ;
         /*! preprocessed list of threaded procs parameters, for n_fluid_solveIncompressibility  */
-        LIST *solveImcompressibility_chunk_list ;
+        LIST *solveIncompressibility_chunk_list ;
         /*! preprocessed list of threaded procs parameters, for n_fluid_advectVel */
         LIST *advectVel_chunk_list ;
         /*! preprocessed list of threaded procs parameters, for n_fluid_advectSmoke  */
