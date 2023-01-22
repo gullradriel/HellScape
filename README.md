@@ -76,11 +76,19 @@ make
 Variables in json:
 
 {
+
 	"numIters":	12,       # precision of the interpolation, the lower the worst. Best range from 8 to 80
+
 	"density":	10000.0,  # density of the fluid. not really what I was expecting
+
 	"dt":	0.5 ,         # fixed delta time. range from 0.1 to 0.5
+
 	"gravity":	0.0,      # unused in the demo, but it's what it's saying. Gravity.
+
 	"overRelaxation":	1.9,            # fluid behavior, the lower the calmer. range from 1.0 to 1.9
+
 	"fluid_production_percentage": 0.3, # percentage of the left screen used to generate fluid
+
 	"cScale": 12.0        # scale of the fluid ( WIDTH/cScale,HEIGHT/cScale) range from 4 to 24, by steps of 2   
+
 }
