@@ -576,7 +576,7 @@ int n_fluid_simulate_threaded( N_FLUID *fluid , THREAD_POOL *thread_pool )
 }
 
 
-int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r , bool reset )
+int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r )
 {
     __n_assert( fluid , return FALSE );
 
@@ -585,11 +585,6 @@ int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , doub
     {
         for( size_t j = 1 ; j < fluid -> numY - 2 ; j++ )
         {
-
-            if( reset )
-            {
-                fluid -> s[i*n + j] = 1.0;
-            }
 
             double dx = (i + 0.5) - x;
             double dy = (j + 0.5) - y;
@@ -607,6 +602,63 @@ int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , doub
     }
     return TRUE ;
 }
+
+int n_fluid_resetObstacles( N_FLUID *fluid )
+{
+    __n_assert( fluid , return FALSE );
+
+    size_t n = fluid -> numY;
+    for( size_t i = 1; i < fluid -> numX - 2 ; i++ )
+    {
+        for( size_t j = 1 ; j < fluid -> numY - 2 ; j++ )
+        {
+            fluid -> s[ i*n + j ] = 1.0 ;
+        }
+    }
+
+    return TRUE ;
+}
+
+int n_fluid_setObstacleFromBitmap( N_FLUID *fluid , ALLEGRO_BITMAP *bitmap , double x , double y , double vx , double vy , double r )
+{
+    __n_assert( fluid , return FALSE );
+
+    int w = al_get_bitmap_width( bitmap );
+    int h = al_get_bitmap_height( bitmap );
+
+    int start_x = x - ( w / 2 );
+
+    ALLEGRO_COLOR  color ;
+    
+    al_lock_bitmap( bitmap , al_get_bitmap_format( bitmap ) , ALLEGRO_LOCK_READONLY );
+
+    size_t n = fluid -> numY;
+    for( size_t i = 1; i < fluid -> numX - 2 ; i++ )
+    {
+        for( size_t j = 1 ; j < fluid -> numY - 2 ; j++ )
+        {
+
+            double dx = (i + 0.5) - x;
+            double dy = (j + 0.5) - y;
+
+            if( i > 7 && ( dx * dx + dy * dy < r * r) )
+            {
+                fluid -> s[i*n + j] = 0.0;
+                fluid -> m[i*n + j] = 1.0;
+                fluid -> u[i*n + j] = vx;
+                fluid -> v[i*n + j] = vy;
+
+                fluid -> u[(i+1)*n + j] = vx;
+                fluid -> v[i*n + j+1] = vy;
+            }
+        }
+    }
+
+    al_unlock_bitmap( bitmap );
+
+    return TRUE ;
+}
+
 
 ALLEGRO_COLOR n_fluid_getSciColor( N_FLUID *fluid , double val , double minVal , double maxVal )
 {

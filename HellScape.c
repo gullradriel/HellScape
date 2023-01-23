@@ -225,7 +225,7 @@ int main( int argc, char *argv[] )
 		al_set_new_display_flags( ALLEGRO_OPENGL|ALLEGRO_WINDOWED );
 	}
 	
-    al_set_new_bitmap_flags( ALLEGRO_VIDEO_BITMAP );
+    al_set_new_bitmap_flags( ALLEGRO_VIDEO_BITMAP|ALLEGRO_NO_PRESERVE_TEXTURE );
 
 	display = al_create_display( WIDTH, HEIGHT );
 	if( !display )
@@ -250,7 +250,9 @@ int main( int argc, char *argv[] )
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_register_event_source(event_queue, al_get_mouse_event_source());
 
+	bool backbuffer = 1 ;
 	ALLEGRO_BITMAP *scrbuf = NULL ;
+	ALLEGRO_BITMAP *bitmap = al_create_bitmap( WIDTH , HEIGHT );
 
 	al_hide_mouse_cursor(display);
 
@@ -314,18 +316,15 @@ int main( int argc, char *argv[] )
 	bool do_draw = 1 , do_logic = 1 ;
 	int mx = WIDTH/3 , my = HEIGHT/2 , mouse_button = 0 , mouse_b1 = 0 , mouse_b2 = 0 ;
 
-	n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) - 20.0 , 0.0 , 0.0 , fluid_factor/2 , 1 );
-	n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) - 15 , my / fluid_factor , 0.0 , 0.0 , fluid_factor/2 + fluid_factor/3 , 0 );
-	n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) + 20.0 , 0.0 , 0.0 , fluid_factor/2 , 0 );
+    n_fluid_resetObstacles( fluid_sim );
 
 	al_flush_event_queue( event_queue );
 	al_set_mouse_xy( display , WIDTH/3 , HEIGHT/2 );
 
-
 	int w = al_get_display_width(  display );
 	int h = al_get_display_height( display );
 
-	scrbuf = al_create_bitmap( WIDTH, HEIGHT );
+	bitmap = al_create_bitmap( WIDTH, HEIGHT );
 
 	size_t logic_duration = 0 ;
 	size_t drawing_duration = 0 ;
@@ -592,9 +591,12 @@ int main( int argc, char *argv[] )
 				}
 				old_mx = mx ; 
 				old_my = my ;
-				n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) - 20.0 , vx , vy , fluid_factor/2 , 1 );
-				n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) - 15 , my / fluid_factor , vx , vy , fluid_factor/2 + fluid_factor/3 , 0 );
-				n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) + 20.0 , vx , vy , fluid_factor/2 , 0 );
+                n_fluid_resetObstacles( fluid_sim );
+				n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) - 20.0 , vx , vy , fluid_factor/2 );
+				n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) - 15 , my / fluid_factor , vx , vy , fluid_factor/2 + fluid_factor/3 );
+				n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) + 15 , my / fluid_factor - 10.0 , vx , vy , fluid_factor/2 + fluid_factor/2 );
+				n_fluid_setObstacle( fluid_sim , (mx / fluid_factor ) + 15 , my / fluid_factor + 10.0 , vx , vy , fluid_factor/2 + fluid_factor/2 );
+				n_fluid_setObstacle( fluid_sim , mx / fluid_factor  , ( my / fluid_factor ) + 20.0 , vx , vy , fluid_factor/2 );
 			}
 
 			double pipeH = fluid_sim -> fluid_production_percentage * fluid_sim -> numY;
@@ -621,13 +623,24 @@ int main( int argc, char *argv[] )
 		{
 			start_HiTimer( &drawing_chrono );
 
+			if( backbuffer )
+				scrbuf = al_get_backbuffer(display);
+			else
+				scrbuf = bitmap ;
+
 			al_set_target_bitmap( scrbuf );
+
+			if( !backbuffer )
+				al_lock_bitmap( scrbuf , al_get_bitmap_format( scrbuf ) , ALLEGRO_LOCK_READWRITE  );
 
 			n_fluid_draw( fluid_sim );
 
 			al_draw_circle( mx , my - 20 * fluid_factor , fluid_factor * fluid_factor / 2  , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
 			al_draw_circle( mx - 15 * fluid_factor , my , fluid_factor * fluid_factor / 2 + (fluid_factor*fluid_factor)/3 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
+			al_draw_circle( mx + 15 * fluid_factor , my + 10.0 * fluid_factor , fluid_factor * fluid_factor / 2 + (fluid_factor*fluid_factor)/2 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
+			al_draw_circle( mx + 15 * fluid_factor , my - 10.0 * fluid_factor , fluid_factor * fluid_factor / 2 + (fluid_factor*fluid_factor)/2 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
 			al_draw_circle( mx , my + 20 * fluid_factor , fluid_factor *fluid_factor  / 2 , al_map_rgb( 255 , 0 , 0 ) , 2.0 );
+
 
 			static N_STR *textout = NULL ;
 			nstrprintf( textout , "[F1/F2]:showSmoke:%d [F3/F4]:showPressure:%d [F5/F6]:showPaint:%d" , fluid_sim -> showSmoke , fluid_sim -> showPressure , fluid_sim -> showPaint );
@@ -642,13 +655,16 @@ int main( int argc, char *argv[] )
 			nstrprintf( textout , "drawing(max %ld): %ld usecs" , (size_t)(1000000.0/drawFPS) , drawing_duration );
 			al_draw_text( font, al_map_rgb( 0 , 0 , 255 ), 5 , 30 , ALLEGRO_ALIGN_LEFT , _nstr( textout ) );
 
-			al_set_target_bitmap(al_get_backbuffer(display));
-
-			al_draw_bitmap( scrbuf, w/2 - al_get_bitmap_width( scrbuf ) /2, h/2 - al_get_bitmap_height( scrbuf ) / 2, 0 );
-
-			al_flip_display();
+			if( !backbuffer )
+			{
+				al_unlock_bitmap( scrbuf );
+				al_set_target_bitmap(al_get_backbuffer(display));
+				al_draw_bitmap( scrbuf, w/2 - al_get_bitmap_width( scrbuf ) /2, h/2 - al_get_bitmap_height( scrbuf ) / 2, 0 );
+			}
 
 			drawing_duration = ( drawing_duration + get_usec( &drawing_chrono ) ) / 2;
+
+			al_flip_display();
 
 			do_draw = 0 ;
 		}

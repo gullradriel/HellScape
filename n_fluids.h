@@ -91,7 +91,6 @@ extern "C" {
 
     } N_FLUID ;
 
-
     int destroy_n_fluid( N_FLUID **fluid );
     N_FLUID *new_n_fluid( double density , double gravity , size_t numIters , double dt , double overRelaxation , size_t sx , size_t sy );
 
@@ -109,7 +108,8 @@ extern "C" {
     int n_fluid_simulate( N_FLUID *fluid );
     int n_fluid_simulate_threaded( N_FLUID *fluid , THREAD_POOL *thread_pool );
 
-    int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r , bool reset );
+    int n_fluid_setObstacle( N_FLUID *fluid , double x , double y , double vx , double vy , double r );
+    int n_fluid_resetObstacles( N_FLUID *fluid );
 
     ALLEGRO_COLOR n_fluid_getSciColor( N_FLUID *fluid , double val , double minVal , double maxVal );
     int n_fluid_draw( N_FLUID *fluid );
